@@ -125,9 +125,9 @@ The immediate `run` response is `unverified`. Do not infer a successful fix from
 
 Before execution, fix the required report items, approved scenarios, and observation and verification criteria. Finish the task after the required observations and resource cleanup pass verification. A successful review does not require repetition or exhaustion of the attempt limit.
 
-Keep experiment verdicts (`reproduced`, `not-reproduced`, `unverified`) separate from task outcomes (`COMPLETED`, `BLOCKED`). Completion of verification does not establish that the target code passes every security check. A successful fix requires evidence for both the defect and normal behavior.
+Keep experiment verdicts (`reproduced`, `not-reproduced`, `unverified`) separate from completion of the requested task. Explain completed work, unverified items, remaining work, and missing prerequisites. Completion of verification does not establish that the target code passes every security check. A successful fix requires evidence for both the defect and normal behavior.
 
-Keep separate new claims and optional experiments on a follow-up list. Do not execute them automatically. If approval, controls, transport, or required evidence fail, record unresolved items and known resources. Return `BLOCKED`. If cleanup lacks verification, use the same blocked outcome. Do not bypass these limits through the host shell or another backend.
+Keep separate new claims and optional experiments on a follow-up list. Do not execute them automatically. If approval, controls, transport, or required evidence fail, stop the dependent work. If cleanup lacks verification, report the unresolved cleanup. Explain completed work, unresolved items, known resources, and missing prerequisites. Do not bypass these limits through the host shell or another backend.
 
 ## Controls and cleanup
 

@@ -31,11 +31,12 @@ Do not include capability or experiment token values.
 
 ## Completion Outcome
 
-- Outcome: `COMPLETED` or `BLOCKED`:
+- Completed scope and findings:
+- Unverified checks and their evidence gaps:
 - Stop reason and remaining time/attempts:
 - Unresolved required observations and checks:
 - Known resources with unconfirmed removal:
-- Missing approval, evidence, or required operator action:
+- Specific missing permission, input, environment, or budget and required operator action:
 
 ## Follow-up Findings
 

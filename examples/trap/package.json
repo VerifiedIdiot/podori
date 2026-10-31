@@ -1,0 +1,10 @@
+{
+  "name": "podori-public-trap-example",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/*.test.mjs",
+    "start": "node server.mjs"
+  }
+}

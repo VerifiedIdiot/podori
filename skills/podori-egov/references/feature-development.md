@@ -8,8 +8,8 @@ Use [test verification](test-verification.md) for security controls, normal beha
 For a possible vulnerability, confirm its actual code path and failing assertion before a security fix.
 Preserve the same clock, required criteria, item attempts, and task-wide round counter.
 Do not rewrite passing code for optional style preferences.
-After every required check passes, return `COMPLETED` after authorized cleanup.
-If required work cannot finish within the limits, return `BLOCKED` with evidence.
+After every required check passes, report the completed feature and verification scope after authorized cleanup.
+If required work cannot finish within the limits, report verified results and remaining required work.
 
 Select the applicable version profile and affected government criteria before edits.
 Record their identifiers without a whole-baseline compliance claim.

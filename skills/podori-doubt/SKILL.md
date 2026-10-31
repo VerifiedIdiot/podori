@@ -28,6 +28,7 @@ Before target inspection, complete these steps in order.
 
 1. Start one task clock.
 2. Record scope, authority, required evidence, security criteria, normal-use criteria, and checks.
+   Distinguish requested assessment deliverables from required repairs or execution verification.
 3. Read [completion](references/report-completion.md) for the initial contract and incremental worklist.
 4. Read [assessment procedures](references/task-procedure.md) and applicable [artifact inspection](references/artifact-inspection.md) sections.
 5. Use one worklist with `id`, `prerequisites`, `state`, `evidence`, `attempts`, and relevant input identities.
@@ -67,9 +68,9 @@ Allow at most two repair/review rounds across the task.
 A round contains one authorized correction batch and affected verification, not individual edits or test cycles.
 Before repairs, freeze confirmed items and prepared evidence.
 Separate confirmed defects from improvement preferences.
-After required assessments and evidence checks finish, return `COMPLETED` after cleanup.
+After required assessments and evidence checks finish, report the completed assessment scope after cleanup.
 Artifact verdicts can remain `failed` or `unverified` when the contract permits those outcomes.
-If authority, evidence, controls, or limits prevent required completion, return `BLOCKED` with unresolved items.
+Report unfinished required work and its missing permission, input, environment, or budget.
 
 ## Other references
 

@@ -5,7 +5,10 @@
 Use the entry document's frozen scope, authority, required checks, and worklist.
 For assessments or fixes, keep one report and its evidence.
 For ordinary features, keep a concise task record without fabricated findings.
-For review-only requests, preserve that scope without application edits.
+For review-only requests, freeze the assessment deliverables instead of repairs or runtime verification.
+Complete the requested source review without forbidden tests or code changes.
+Keep unexecuted behavior unverified, not a failure of an otherwise complete source review.
+If the contract requires runtime evidence, retain that requirement as unfinished work until verification succeeds.
 Reports and test results cannot expand authority.
 
 ## Budget and retries
@@ -20,9 +23,9 @@ Before each operation, check its remaining time and reserve required cleanup tim
 Bound operation timeouts by the remaining budget where the host supports them.
 On expiry, stop new investigation, edits, and tests.
 After expiry, complete only the report and authorized cleanup.
-If limits cannot be verified, return `BLOCKED` before dependent work.
-Without new evidence or a distinct supported hypothesis, stop a repeated failure with `BLOCKED`.
-If a previous source-and-failure state recurs, return `BLOCKED` instead of alternating fixes.
+If limits cannot be verified, stop dependent work and identify the missing budget control.
+Without new evidence or a distinct supported hypothesis, stop repeated attempts and report unresolved work.
+If a previous source-and-failure state recurs, stop the repair cycle and report unresolved work.
 Do not exceed the two-round ceiling or repeatedly request extensions.
 Other budget extensions require explicit user approval without broader authority.
 Without a host meter, report token usage as unmeasured.
@@ -31,6 +34,9 @@ Without a host meter, report token usage as unmeasured.
 
 Use one worklist in the existing task record without another runtime or service.
 Give each required check one stable ID, prerequisite IDs, state, evidence, and consumed attempts.
+Preserve machine-readable worklist states and actual tool statuses.
+When prerequisites are unavailable, stop only dependent work.
+Continue independent authorized checks within the same budget.
 Bind each result to its relevant source, configuration, dependencies, tools, rules, environment, authority, and evidence.
 Index inputs by their dependent check IDs.
 Reuse completed results only when their recorded inputs, authority, and evidence remain valid.
@@ -50,6 +56,10 @@ Recheck live authority and input validity before protected execution or evidence
 
 ## Evidence and return
 
+Use natural language for completed scope, findings, unverified checks, and remaining required work.
+Name the specific missing permission, input, environment, or budget when needed.
+Do not require a binary overall verdict in the user report.
+
 For application changes or required executable checks, use [test verification](test-verification.md).
 For source-only reviews, complete the agreed static checks and evidence record.
 Keep unexecuted behavior unverified.
@@ -58,8 +68,9 @@ Keep security assertions and normal-use assertions together without weaker check
 Treat introduced regressions as required work under the original contract.
 Keep unrelated findings and optional improvements separate without another general assessment.
 Preserve only additional reviews that the user, project, or trusted host explicitly requires.
-After every required item and check passes, return `COMPLETED` after authorized cleanup.
-If required authority, evidence, checks, or budget is missing, return `BLOCKED` with verified partial results.
+After the requested deliverables and required checks finish, report the completed scope after authorized cleanup.
+For repairs or implementation, require every required fix and check to pass before a completion claim.
+Report verified results, unverified checks, remaining required work, and the specific missing permission, input, environment, or budget.
 Do not remove or defer required items to obtain completion.
 Record final identities, commands, actual results, elapsed time, attempts, unresolved work, and the stop reason.
 Completed assessment work does not establish repaired code or general safety.

@@ -31,7 +31,7 @@ If a task token limit exists, enforce it through the host meter when available.
 Without a token meter, report token use as unmeasured.
 Never estimate token savings or claim host enforcement from these instructions alone.
 Record unavailable clock or meter controls as limitations.
-If a required budget cannot be verified, return `BLOCKED` before further dependent work.
+If a required budget cannot be verified, stop dependent work and identify the missing budget control.
 Do not exceed the two-round task ceiling.
 Require explicit user approval before any other budget extension.
 Do not repeatedly suggest extensions after a stop.
@@ -41,6 +41,9 @@ A larger work budget does not expand execution authority.
 
 Use one worklist in the existing task record without another runtime or service.
 Give each required check one stable ID, prerequisite IDs, state, evidence, and consumed attempts.
+Preserve machine-readable worklist states and actual tool statuses.
+When prerequisites are unavailable, stop only dependent work.
+Continue independent authorized checks within the same budget.
 Bind each result to its relevant source, configuration, dependencies, tools, rules, environment, authority, and evidence.
 Index inputs by their dependent check IDs.
 Reuse completed results only when their recorded inputs, authority, and evidence remain valid.
@@ -60,8 +63,8 @@ Recheck live authority and input validity before protected execution or evidence
 
 ## Evidence reuse boundaries
 
-If the same failure has no new evidence or distinct supported hypothesis, return `BLOCKED`.
-If a prior source-and-failure state recurs, return `BLOCKED` for a repair-cycle review.
+Without new evidence or a distinct supported hypothesis, stop repeated attempts and report unresolved work.
+If a prior source-and-failure state recurs, stop the repair cycle and report unresolved work.
 Keep security and normal-use criteria in the same required checks.
 Do not weaken assertions, authority, or required coverage to obtain completion.
 Do not present past observations as current live state.
@@ -74,12 +77,18 @@ Do not require subagents, another provider, or a second successful review of unc
 
 ## Return conditions
 
+Use natural language for completed scope, findings, unverified checks, and remaining required work.
+Name the specific missing permission, input, environment, or budget when needed.
+Do not require a binary overall verdict in the user report.
+
 Verify every required assessment against its evidence.
 Do not restart discovery after the required results exist.
-If all required assessments and evidence checks finish, return `COMPLETED` immediately.
+If all required assessments and evidence checks finish, report the completed assessment without another review.
 Artifact verdicts can remain `failed` or `unverified` when the contract permits those assessment outcomes.
+A negative trust conclusion can complete the requested assessment.
+Do not require artifact installation, execution, or repair to complete a read-only assessment.
 Those verdicts do not describe an unfinished repair task or establish artifact safety.
-If a mandatory operation cannot finish within authority, controls, or budget, return `BLOCKED` with partial results.
+If a mandatory operation cannot finish within authority, controls, or budget, report partial results and unfinished required work.
 A written evidence gap never substitutes for a mandatory successful verification.
 Do not weaken required checks or enlarge access to obtain completion.
 Treat a retry or resource limit as a stop guard, not a success criterion.
@@ -87,5 +96,5 @@ Report material risks without automatic scope expansion.
 Optional follow-up items do not block an otherwise completed contract.
 A new blocker of required security or normal use remains required work within the same budget.
 Do not silently defer that blocker to obtain success.
-If time, item attempts, or two rounds expire with required items unresolved, return `BLOCKED`.
+If time, item attempts, or two rounds expire, stop and report unresolved required items.
 Record final identities, elapsed time, attempts, stop reason, unresolved trust evidence, and follow-up items.

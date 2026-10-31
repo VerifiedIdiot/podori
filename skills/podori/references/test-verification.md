@@ -33,10 +33,12 @@ Do not invoke another agent or decision skill as a routine verification prerequi
 | `FAIL` | A required assertion or configured check fails. Record the actual failure. |
 | `BLOCKED` | Missing authority, setup, evidence, or coverage. Required test status: skipped, absent, unexecuted, stale, or timeout. |
 
-For the final verdict, apply `BLOCKED` before `FAIL`, then `PASS`.
+Keep these check-level results separate from task completion.
+Preserve native machine-readable statuses without renaming them.
+Do not turn a check status into a mandatory overall verdict.
 Read results from actual tool output or native machine-readable reports, not model-written summaries.
 Match required test IDs against the actual report.
-If the report cannot establish execution and outcome, return `BLOCKED`.
+If the report cannot establish execution and outcome, keep that check unverified and identify its missing evidence.
 An empty suite or zero exit status alone is not `PASS`.
 Reuse results only when their recorded inputs and authority remain unchanged.
 After test or assertion changes, invalidate affected results and record the reason.

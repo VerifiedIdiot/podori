@@ -62,7 +62,7 @@ Approved local test services remain subject to those controls and the recorded n
 | No optional reviewer or decision skill | Continue test-based verification without capability discovery or a replacement service. |
 | Required project test cannot run | Keep the dependent behavior unverified. Do not fabricate a passing result. |
 | Explicitly required external review fails | Hold dependent work and preserve failure evidence. Do not use an absent-capability fallback. |
-| Mandatory check lacks evidence or authority | Return `BLOCKED` with verified partial results under the frozen contract. |
+| Mandatory check lacks evidence or authority | Hold dependent work. Report verified results, unverified checks, and the missing prerequisite. |
 
 A missing optional tool does not cancel checks that need no such tool.
 A missing mandatory check does not become a pass because the host is isolated.

@@ -29,6 +29,7 @@ Before target inspection, complete these steps in order.
 
 1. Start one task clock.
 2. Record scope, authority, required evidence, security criteria, normal-use criteria, and checks.
+   Distinguish requested assessment deliverables from required repairs or execution verification.
 3. Read [completion](references/report-completion.md) for the initial contract and incremental worklist.
 4. For security reviews or fixes, read [procedures](references/task-procedure.md) and applicable [validation](references/security-validation.md) sections.
    For eGov-specific work, select the [version profile](references/versions.md) and affected [government criteria](references/government-baseline.md).
@@ -67,8 +68,11 @@ Allow at most two repair/review rounds across the task.
 A round contains one authorized correction batch and affected verification, not individual edits or test cycles.
 Before repairs, freeze confirmed items and prepared evidence.
 Separate confirmed defects from improvement preferences.
-After all required checks pass, return `COMPLETED` after required cleanup.
-If authority, evidence, controls, or limits prevent required completion, return `BLOCKED` with unresolved items.
+For review-only work, report completion only after the required assessment deliverables finish.
+Leave unexecuted behavior unverified.
+For implementation or repairs, require every required fix and check to pass before a completion claim.
+Report results after required cleanup.
+Report unfinished required work and its missing permission, input, environment, or budget.
 
 ## Other references
 

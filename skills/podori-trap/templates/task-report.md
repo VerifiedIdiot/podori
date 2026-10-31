@@ -28,10 +28,11 @@ Keep prior attempts and evidence when the report changes.
 
 ## Completion Outcome
 
-- Outcome: `COMPLETED` or `BLOCKED`:
+- Completed scope and findings:
+- Unverified checks and their evidence gaps:
 - Stop reason and remaining time/attempts:
 - Unresolved required items and introduced regressions:
-- Required authority, evidence, or next action for blocked work:
+- Specific missing permission, input, environment, or budget and required next action:
 - Actual activation state and separate production approval:
 
 ## Follow-up Findings

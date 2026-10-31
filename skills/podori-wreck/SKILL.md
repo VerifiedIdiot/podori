@@ -36,6 +36,7 @@ Before target inspection, complete these steps in order.
 
 1. Start one task clock.
 2. Record scope, authority, required evidence, security criteria, normal-use criteria, and checks.
+   Distinguish requested assessment deliverables from required repairs or execution verification.
 3. Read [completion](references/report-completion.md) for the initial contract and incremental worklist.
 4. Before synthetic execution, read the [tool contract](references/tool-contract.md) and [execution procedures](references/task-procedure.md).
 5. Use one worklist with `id`, `prerequisites`, `state`, `evidence`, `attempts`, and relevant input identities.
@@ -59,6 +60,7 @@ Network access does not relax controls.
 
 Require a configured local stdio server.
 Require a host-issued approval for the report item and scenario.
+Without that approval, stop execution and report the missing approval and unverified observations.
 Require the approved platform, runtime identity, fixture revision, image digest, budget, and expiry.
 Keep approval capabilities and experiment tokens private.
 Do not put their values in logs, reports, prompts for other agents, or public files.
@@ -75,9 +77,9 @@ Allow at most two repair/review rounds across the task.
 A round contains one authorized correction batch and affected verification, not individual edits or test cycles.
 Before repairs, freeze confirmed items and prepared evidence.
 Separate confirmed defects from improvement preferences.
-After required observations and checks finish, return `COMPLETED` after verified cleanup.
+After required observations and checks finish, report the completed execution scope after verified cleanup.
 Keep scenario verdicts separate from task completion and verified fixes.
-If authority, evidence, controls, or limits prevent required completion, return `BLOCKED` with unresolved items.
+Report unfinished required work and its missing permission, input, environment, or budget.
 
 ## Other references
 

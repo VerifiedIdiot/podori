@@ -76,7 +76,7 @@ Keep advisory currency separate through the [lifecycle procedure](lifecycle-and-
 
 A completed review can document unresolved candidates within its approved assessment scope.
 A `needs_validation` result cannot waive a mandatory check or required finding resolution.
-If required evidence is unavailable, return `BLOCKED` under the frozen completion contract.
+If required evidence is unavailable, identify the affected checks and evidence gaps under the frozen completion contract.
 Do not remove required rows or checks to obtain completion.
 
 ## eGovFrame overlays

@@ -40,7 +40,9 @@ Artifact-to-workload relationships, evidence times, unresolved coverage, and rec
 Required failures, evidence gaps, and operator decisions:
 Decision-skill discovery, actual invocation evidence, result validity, unresolved gates, and host-enforcement status:
 
-Task outcome (`COMPLETED` or `BLOCKED`), distinct from artifact trust status:
+Completed assessment scope and findings, distinct from artifact trust status:
+Unverified checks and their evidence gaps:
+Specific missing permission, input, environment, or budget:
 Stop reason, elapsed time, attempts, and remaining budget:
 Unfinished mandatory operations, partial results, and required next action:
 Separate follow-up artifacts, investigations, and material risks:

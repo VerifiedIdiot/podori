@@ -68,11 +68,12 @@ Exclude credentials, private data, and unredacted secrets.
 
 ## Completion Outcome
 
-- Outcome: `COMPLETED` or `BLOCKED`:
+- Completed scope and findings:
+- Unverified checks and their evidence gaps:
 - Stop reason and remaining time/attempts:
 - Verified required items and checks:
 - Unresolved required items and introduced regressions:
-- Required authority, evidence, or next action for blocked work:
+- Specific missing permission, input, environment, or budget and required next action:
 
 ## Follow-up Findings
 
