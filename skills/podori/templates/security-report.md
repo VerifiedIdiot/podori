@@ -1,5 +1,7 @@
 # Security Report
 
+Use this template only when the entry document selects the full report.
+
 ## Scope and Baseline
 
 - Report revision/assessment date:
@@ -18,7 +20,7 @@
 - Work start, deadline, and elapsed time:
 - Attempt limit and explicit user override, if any:
 - Host limits and actual enforcement evidence:
-- Token limit, meter source, and measured usage or `unmeasured`:
+- Measured token usage, only where a host meter exists:
 
 Result updates do not reset the frozen contract.
 

@@ -1,5 +1,7 @@
 # Completion
 
+Apply this document when the entry document selects the full report.
+
 ## Frozen contract
 
 Use the entry document's frozen scope, authority, required checks, and worklist.
@@ -19,7 +21,7 @@ An item attempt includes its candidate action and required verification.
 Count the initial assessment attempt and all delegated work.
 Do not reset counters through new IDs, regressions, report updates, or resumed work.
 A repair round contains one correction batch and affected verification, not each local edit or test command.
-Before each operation, check its remaining time and reserve required cleanup time.
+Check the remaining budget at each round boundary and before a long operation.
 Bound operation timeouts by the remaining budget where the host supports them.
 On expiry, stop new investigation, edits, and tests.
 After expiry, complete only the report and authorized cleanup.

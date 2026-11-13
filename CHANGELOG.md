@@ -3,6 +3,9 @@
 ## 1.1.0
 
 - `podori-wreck`을 `podori-sandbox`로 이름 변경. 기존 설치는 새 폴더로 다시 복사하고 `/podori-sandbox`로 호출
+- `podori`의 기본 기록을 고정 양식의 간결한 기록으로 축소. 전체 보고서와 완료 규칙은 의존 항목·재시도·권고 관문·정식 보고서 요구 시에만 사용
+- 대상 코드의 호스트 실행 조건 명시(`podori`, `podori-egov`). 그 밖에는 승인된 샌드박스에서만 실행
+- 대상 프로젝트가 없거나 모호하면 읽기·쓰기 전에 중단
 - 권고 조회를 로컬 스냅샷 전용으로 변경, 갱신은 작업 밖의 별도 유지보수로 분리
 - 실제 악용 근거로 CISA KEV 추가
 - 선택형 Kata(`kata`) 런타임 추가, 게스트 통제와 호스트의 KVM 프로세스 확인
@@ -12,6 +15,9 @@
 ### English
 
 - `podori-wreck` is now `podori-sandbox`. Copy the new folder again and invoke `/podori-sandbox`.
+- `podori` keeps a compact fixed-format record by default. The full report and completion rules apply only to dependent items, retries, advisory gates, or a required formal report.
+- `podori` and `podori-egov` state the conditions for host execution of target code. Other execution requires an approved sandbox.
+- An absent or ambiguous target project stops the task before any read or write.
 - Advisory checks use only the approved local snapshot. Refresh is separate maintenance outside the task.
 - CISA KEV supplies known-exploitation evidence.
 - Optional Kata (`kata`) runtime with guest controls and bound host KVM evidence.
