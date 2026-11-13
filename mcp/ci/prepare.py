@@ -34,8 +34,13 @@ def install_kata(arch, temporary):
     version, expected = KATA
     if arch != "amd64" or not Path("/dev/kvm").exists():
         raise RuntimeError("kvm-amd64-runner-required")
-    if Path("/opt/kata").exists() or Path("/etc/kata-containers").exists() or Path("/etc/docker/daemon.json").exists():
+    if Path("/opt/kata").exists() or Path("/etc/kata-containers").exists():
         raise RuntimeError("runtime-destination-already-exists")
+    # A runner image can ship its own daemon.json. Add the runtime and keep the rest.
+    daemon = json.loads(run(["sudo", "cat", "/etc/docker/daemon.json"])) if Path("/etc/docker/daemon.json").exists() else {}
+    if not isinstance(daemon, dict) or not isinstance(daemon.get("runtimes", {}), dict) or "kata" in daemon.get("runtimes", {}):
+        raise RuntimeError("runtime-registration-already-exists")
+    daemon.setdefault("runtimes", {})["kata"] = {"runtimeType": KATA_SHIM}
     archive = temporary / "podori-kata.tar.zst"
     url = f"https://github.com/kata-containers/kata-containers/releases/download/{version}/kata-go-static-{version}-{arch}.tar.zst"
     run(["curl", "--fail", "--silent", "--show-error", "--location", "--proto", "=https", "--proto-redir", "=https", "--max-time", "300", "--max-filesize", "1500000000", url, "--output", str(archive)], 310)
@@ -54,7 +59,7 @@ def install_kata(arch, temporary):
         raise RuntimeError("runtime-configuration-unexpected")
     run(["sudo", "mkdir", "-p", "/etc/kata-containers"])
     subprocess.run(["sudo", "tee", "/etc/kata-containers/configuration.toml"], input=settings.replace("disable_guest_seccomp = true", "disable_guest_seccomp = false"), check=True, capture_output=True, text=True, timeout=30)
-    subprocess.run(["sudo", "tee", "/etc/docker/daemon.json"], input=json.dumps({"runtimes": {"kata": {"runtimeType": KATA_SHIM}}}), check=True, capture_output=True, text=True, timeout=30)
+    subprocess.run(["sudo", "tee", "/etc/docker/daemon.json"], input=json.dumps(daemon), check=True, capture_output=True, text=True, timeout=30)
     print(run(["/opt/kata/bin/kata-runtime", "--version"]))
     run(["sudo", "systemctl", "reload", "docker"])
 
