@@ -1,7 +1,8 @@
 # 변경 이력
 
-## 미출시
+## 1.1.0
 
+- `podori-wreck`을 `podori-sandbox`로 이름 변경. 기존 설치는 새 폴더로 다시 복사하고 `/podori-sandbox`로 호출
 - 권고 조회를 로컬 스냅샷 전용으로 변경, 갱신은 작업 밖의 별도 유지보수로 분리
 - 실제 악용 근거로 CISA KEV 추가
 - 선택형 Kata(`kata`) 런타임 추가, 게스트 통제와 호스트의 KVM 프로세스 확인
@@ -10,6 +11,7 @@
 
 ### English
 
+- `podori-wreck` is now `podori-sandbox`. Copy the new folder again and invoke `/podori-sandbox`.
 - Advisory checks use only the approved local snapshot. Refresh is separate maintenance outside the task.
 - CISA KEV supplies known-exploitation evidence.
 - Optional Kata (`kata`) runtime with guest controls and bound host KVM evidence.

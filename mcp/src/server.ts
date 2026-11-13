@@ -44,7 +44,7 @@ class ValidatingStdioTransport extends StdioServerTransport {
   }
 }
 const handle=serveStdio(()=>{
-  const server=new McpServer({name:'podori-sandbox',version:'1.0.0'});
+  const server=new McpServer({name:'podori-sandbox',version:'1.1.0'});
   for(const {name,description,inputSchema,action} of tools) {
     server.registerTool(name,{description,inputSchema},async input=>guarded(()=>action(input)));
   }

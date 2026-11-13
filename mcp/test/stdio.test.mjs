@@ -41,7 +41,7 @@ test('V02: current release metadata matches the MCP package version', () => {
   const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
   assert.equal(lock.version, pkg.version, 'Lockfile version');
   assert.equal(lock.packages[''].version, pkg.version, 'Lockfile root package version');
-  for (const name of ['podori', 'podori-egov', 'podori-doubt', 'podori-trap', 'podori-wreck']) {
+  for (const name of ['podori', 'podori-egov', 'podori-doubt', 'podori-trap', 'podori-sandbox']) {
     const skill = readFileSync(`../skills/${name}/SKILL.md`, 'utf8');
     const frontmatter = skill.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)?.[1];
     const metadata = frontmatter?.match(/^metadata:\r?\n((?:[ \t]+[^\r\n]*(?:\r?\n|$)|\r?\n)*)/m)?.[1];

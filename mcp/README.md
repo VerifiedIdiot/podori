@@ -2,7 +2,7 @@
 
 한국어 안내 | [English](README.en.md)
 
-`1.0.0`의 선택적 로컬 stdio 패키지입니다. 기존 네 스킬은 이 패키지 없이 그대로 사용할 수 있습니다.
+`1.1.0`의 선택적 로컬 stdio 패키지입니다. 기존 네 스킬은 이 패키지 없이 그대로 사용할 수 있습니다.
 
 ## 지원 범위
 
@@ -134,7 +134,7 @@ state 인자 없이 실행하면 환경 미구성 여부만 조회할 수 있습
 
 ## MCP 사용
 
-전체 입력·도구 계약은 `../skills/podori-wreck/references/tool-contract.md`를 참조하세요.
+전체 입력·도구 계약은 `../skills/podori-sandbox/references/tool-contract.md`를 참조하세요.
 
 | 순서 | 도구 | 동작 |
 |---|---|---|
