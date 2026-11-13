@@ -17,6 +17,7 @@ For agents with slash-command support, invoke the skill in the target project:
 ```
 
 Like every podori skill, it uses the bundled baseline and approved local evidence on connected and isolated hosts.
+Advisory checks use the same local snapshot on both.
 The default scope includes necessary fixes and verification.
 A review-only request leaves the code unchanged.
 Other podori skills and MCP servers are not required.
@@ -55,6 +56,7 @@ Maintenance requires a separate approved task.
 - Unexecuted required tests and missing advisory data do not establish safety.
 - Supported local checks continue.
 - If mandatory verification is blocked, the skill returns verified partial results and the blocker.
+- A test command that the project declares runs on the host when it needs no installation, download, or external network. Other target code runs in an approved sandbox.
 - The task ends after its required fixes and checks pass.
 - Separate new defects remain follow-up items.
 

@@ -47,7 +47,7 @@ The container has a read-only root, no Linux capabilities, and a no-new-privileg
 It runs as UID 65534 with one CPU, 128 MiB memory, 64 processes, and a 16 MiB temporary filesystem.
 The in-container test command has a 30-second deadline.
 Docker removes the container after exit.
-The verified Docker runtime was `runc`, not gVisor.
+The verified Docker runtime was `runc`.
 
 Expected result: 22 tests pass, with zero failures, cancellations, or skipped tests.
 A nonzero exit code means that the check failed.
