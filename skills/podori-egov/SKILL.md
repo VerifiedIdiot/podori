@@ -89,5 +89,5 @@ Do not require subagents or another provider.
 | Advisories, dependency changes, or release gates | [Lifecycle](references/lifecycle-and-cve.md) |
 | Required current advisory evidence | [Advisory preflight](references/advisory-preflight.md), before the evidence freeze |
 
-Require network permission and prepared tools before advisory network access.
+Use the approved local advisory snapshot without task-time advisory network access.
 Keep ordinary local implementation free from mandatory network access.

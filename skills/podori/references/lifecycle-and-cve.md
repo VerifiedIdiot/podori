@@ -13,7 +13,7 @@ After that preflight, keep the selected snapshot fixed for review and repairs.
 8. Apply approved remediation/release policies without automatic fixes.
 
 Missing records, stale data, unsupported ecosystems, and failed queries cannot establish unaffected status.
-Require approved destinations and disclosed inventory for optional refresh.
+Perform any refresh as separate approved maintenance, not a step within the active review.
 Record advisory identifiers, snapshot dates, exposure evidence, and exception owner/scope/reason/expiry.
 
 | Gate | Action |

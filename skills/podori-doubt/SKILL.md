@@ -81,4 +81,4 @@ Do not require subagents or another provider.
 
 Before material trust decisions, read [decision gates](references/decision-gate.md).
 For required current advisory evidence, read [advisory preflight](references/advisory-preflight.md) before the evidence freeze.
-Require network permission and prepared tools before advisory network access.
+Use the approved local advisory snapshot without task-time advisory network access.
