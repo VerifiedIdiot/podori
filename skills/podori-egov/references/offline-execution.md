@@ -16,7 +16,7 @@ Record the actual host controls without an enforcement claim that lacks tests.
 ## Preflight
 
 Before the evidence freeze, use approved [advisory preparation](advisory-preflight.md) when current component evidence is required.
-On an isolated host, use imported records with their dates and coverage.
+Use the same approved local snapshot on connected and isolated hosts, with its dates and coverage.
 Do not install tools or change the bundled government baseline for advisory preparation.
 
 1. Verify the approved package source identity and complete file set before review.
