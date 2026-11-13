@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { BUDGET, BASE_IMAGE, Config, Id, Runtime, objectHash, type Configuration, type NativePlatform, type RuntimeName, type ScenarioId } from './policy.js';
 import { Store } from './store.js';
-import { collectHostControls, enforceHostControls, type HostControlEvidence } from './host-evidence.js';
+import { collectHostControls, collectVm, enforceHostControls, enforceVm, type HostControlEvidence, type VmEvidence } from './host-evidence.js';
 
 const fixture = fileURLToPath(new URL('../fixture/', import.meta.url));
 const OWNER = 'io.podori.controller';
@@ -37,6 +37,11 @@ export function enforceHost(input:unknown, runtime:RuntimeName='runc'): {platfor
   if(!registered || Object.keys(registered).length===0)throw new Error('runtime-unavailable');
   return {platform,runtimeConfigHash:objectHash(registered)};
 }
+// Recorded, not required: a default daemon reports neither option.
+export function daemonIsolation(input:unknown): {rootless:boolean;userns:boolean} {
+  const options=Host.parse(input).SecurityOptions;
+  return {rootless:options.includes('name=rootless'),userns:options.includes('name=userns')};
+}
 export function enforceContainer(input:unknown, config:Configuration, name:string): void {
   const c=Inspection.parse(input), h=c.HostConfig;
   if(h.Runtime!==config.runtime)throw new Error('container-runtime-mismatch');
@@ -55,7 +60,12 @@ export function enforceProbe(input:unknown, config?:Configuration, hostControls?
     enforceHostControls(hostControls,config,inspection);
     const limit=z.strictObject({error:z.literal('ENOSPC'),bytes:z.number().int().nonnegative().max(BUDGET.tmpfs)}).safeParse(p.tmpLimit);
     if(!limit.success || p.tmpMount.split(' ')[2]!=='tmpfs')throw new Error('isolation-probe-failed');
-  } else if(p.noNewPrivs!==1 || p.seccomp!==2 || p.memoryMax!==String(BUDGET.memory) || p.pidsMax!==String(BUDGET.pids) || p.cpuMax!=='50000 100000' || !p.tmpMount.includes('size=4096k'))throw new Error('isolation-probe-failed');
+  } else {
+    // Kata does not apply the PID limit in the guest. Require the VM instead.
+    const vm=config?.runtime==='kata';
+    if(vm)enforceVm(hostControls,config,inspection);
+    if(p.noNewPrivs!==1 || p.seccomp!==2 || p.memoryMax!==String(BUDGET.memory) || (!vm && p.pidsMax!==String(BUDGET.pids)) || p.cpuMax!=='50000 100000' || !p.tmpMount.includes('size=4096k'))throw new Error('isolation-probe-failed');
+  }
 }
 export class CommandFailure extends Error {
   constructor(readonly reason:string, readonly exitCode:number|null, readonly diagnostic = '') { super(reason); }
@@ -113,10 +123,11 @@ export class DockerBackend {
     await this.command(['container','rm','--force',c.Id]);
     if(await this.inspect(id)!==null) throw new Error('cleanup-not-confirmed');
   }
-  hostControls(inspection:ContainerInspection):HostControlEvidence|null {
+  hostControls(inspection:ContainerInspection):HostControlEvidence|VmEvidence|null {
+    if(this.config.runtime==='kata')return collectVm(this.config,inspection);
     return this.config.runtime==='runsc'?collectHostControls(this.config,inspection):null;
   }
-  async verifyIsolation(id:string, checkpoint:()=>void):Promise<{inspection:ContainerInspection;probe:unknown;hostControls:HostControlEvidence|null}> {
+  async verifyIsolation(id:string, checkpoint:()=>void):Promise<{inspection:ContainerInspection;probe:unknown;hostControls:HostControlEvidence|VmEvidence|null}> {
     const inspection=await this.inspect(id);checkpoint();
     if(!inspection?.State.Running)throw new Error('target-not-running');
     enforceContainer(inspection,this.config,this.name(id));
@@ -125,7 +136,7 @@ export class DockerBackend {
     enforceProbe(probe,this.config,hostControls,inspection);
     return {inspection,probe,hostControls};
   }
-  async provision(id:string, checkpoint:()=>void):Promise<{host:unknown;inspection:ContainerInspection;probe:unknown;hostControls:HostControlEvidence|null;states:unknown}> {
+  async provision(id:string, checkpoint:()=>void):Promise<{host:unknown;inspection:ContainerInspection;probe:unknown;hostControls:HostControlEvidence|VmEvidence|null;states:unknown}> {
     const host=await this.preflight(); checkpoint();
     await this.command(['container','create','--pull=never','--runtime',this.config.runtime,'--platform',this.config.platform,'--name',this.name(id),'--label',`${OWNER}=${this.config.owner}`,'--label',`${EXPERIMENT}=${id}`,'--label',`${REVISION}=${this.config.fixtureRevision}`,'--network','none','--user','1000:1000','--cap-drop','ALL','--security-opt','no-new-privileges','--read-only','--tmpfs',`/tmp:rw,noexec,nosuid,nodev,size=${BUDGET.tmpfs},mode=1777`,'--memory',String(BUDGET.memory),'--memory-swap',String(BUDGET.memory),'--cpus',String(BUDGET.cpu),'--pids-limit',String(BUDGET.pids),'--ulimit','nofile=64:64','--ipc','none','--restart','no','--log-driver','none','--env',`PODORI_EXPERIMENT_ID=${id}`,this.config.imageId]);
     checkpoint();

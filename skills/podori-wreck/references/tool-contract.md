@@ -8,7 +8,7 @@ An experiment identifier alone does not grant access.
 
 | Tool | Input | Effect |
 |---|---|---|
-| `sandbox_environment` | `{}` | Check the configured image and required host controls. |
+| `sandbox_environment` | `{}` | Check the configured image and required host controls. Report daemon rootless and userns state. |
 | `sandbox_create` | `approvalId`, `claimToken` | Consume one host-issued approval and reserve an experiment. |
 | `sandbox_status` | `experimentId`, `accessToken` | Read experiment status. |
 | `sandbox_run` | Access fields and `scenario` | Start one approved comparison. |

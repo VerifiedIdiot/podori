@@ -59,3 +59,33 @@ export function collectHostControls(config:Configuration, inspection:ContainerIn
   if(start()!==processStart || read(`${proc}/cgroup`)!==group)throw new Error('host-process-changed');
   return enforceHostControls(evidence,config,inspection);
 }
+
+const VmEvidence = z.strictObject({
+  source:z.literal('native-linux-kvm'),runtime:z.literal('kata'),runtimeConfigHash:Hash,platform:Platform,
+  containerId:Hash,pid:z.number().int().min(2),processStart:z.string().regex(/^\d+$/),capturedAt:z.iso.datetime(),
+});
+export type VmEvidence = z.infer<typeof VmEvidence>;
+
+export function enforceVm(input:unknown, config:Configuration, inspection:ContainerInspection|undefined):VmEvidence {
+  const v=VmEvidence.parse(input);
+  if(!inspection?.State.Running || v.runtime!==config.runtime || v.runtimeConfigHash!==config.runtimeConfigHash || v.platform!==config.platform || v.containerId!==inspection.Id || v.pid!==inspection.State.Pid)throw new Error('host-evidence-identity-mismatch');
+  return v;
+}
+
+// The inspected PID must be the KVM process that Kata named for this container.
+export function collectVm(config:Configuration, inspection:ContainerInspection, host:HostReader={os:process.platform,arch:process.arch,read:readBounded,realpath:realpathSync}):VmEvidence {
+  const platform=host.arch==='arm64'?'linux/arm64':host.arch==='x64'?'linux/amd64':null;
+  if(host.os!=='linux' || platform!==config.platform || config.runtime!=='kata')throw new Error('native-host-evidence-unavailable');
+  const pid=z.number().int().min(2).parse(inspection.State.Pid),proc=`/proc/${pid}`;
+  const read=(path:string):string=>{
+    try {return host.read(path);}catch {throw new Error('native-host-evidence-unavailable');}
+  };
+  const start=():string=>{
+    const stat=read(`${proc}/stat`);
+    return z.string().regex(/^\d+$/).parse(stat.slice(stat.lastIndexOf(')')+2).split(' ')[22-3]);
+  };
+  const processStart=start(),args=read(`${proc}/cmdline`).split('\0');
+  if(!/^[a-f0-9]{64}$/.test(inspection.Id) || !args.includes(`sandbox-${inspection.Id}`) || !args.some(arg=>arg.split(',').includes('accel=kvm')))throw new Error('vm-evidence-mismatch');
+  if(start()!==processStart)throw new Error('host-process-changed');
+  return enforceVm({source:'native-linux-kvm',runtime:config.runtime,runtimeConfigHash:config.runtimeConfigHash,platform:config.platform,containerId:inspection.Id,pid,processStart,capturedAt:new Date().toISOString()},config,inspection);
+}

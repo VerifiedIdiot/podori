@@ -41,6 +41,20 @@ linux/arm64 manifest: sha256:156e9bc7a0a267cc6ca77b4283e32b123479342df684ce29745
 linux/amd64 manifest: sha256:ec857ea6bb60cb3d0fa4d97495590c5fe7d51be8572c307b55957eeb06569cf7
 ```
 
+## 운영체제별 선택
+
+호스트마다 쓸 수 있는 가장 강한 격리를 고릅니다. 컨테이너 통제와 게스트 내부 probe는 모든 호스트에서 같습니다.
+
+| 호스트 | 권장 선택 | 호스트와의 경계 |
+|---|---|---|
+| Linux ARM64·AMD64 | `runsc` | gVisor 사용자 공간 커널과 호스트 cgroup 확인 |
+| macOS | `runc` | Docker가 사용하는 Linux VM |
+| Windows | WSL2 안에서 Linux 구성 | WSL2 VM |
+
+macOS에서는 MCP가 VM 밖에서 실행되어 호스트 PID와 cgroup을 읽을 수 없으므로 `runsc`를 선택할 수 없습니다. Windows 네이티브 실행은 지원하지 않습니다. Unix socket과 POSIX 소유권·권한 검사가 필요하기 때문입니다.
+
+Linux는 CI에서 두 런타임을 검증합니다. macOS는 ARM64 Docker Desktop의 `runc`에서 단위·통합 시험을 수동으로 확인했습니다. macOS AMD64와 WSL2는 확인하지 않았습니다.
+
 ## gVisor 선택형 격리 실행
 
 gVisor의 사용자 공간 커널은 앱의 시스템 콜을 처리해 호스트 커널 취약점의 직접 악용 경로를 줄입니다. 호스트 보안 패치를 대신하거나 모든 취약점의 차단을 보장하지는 않습니다. 보호 범위는 [gVisor 보안 모델](https://gvisor.dev/docs/architecture_guide/security/)을 참고합니다.
@@ -130,6 +144,7 @@ state 인자 없이 실행하면 환경 미구성 여부만 조회할 수 있습
 
 - 컨테이너마다 network none, non-root 1000:1000, cap-drop ALL, no-new-privileges, read-only rootfs를 적용합니다.
 - 호스트 bind mount, Docker socket, 사용자 자격 증명, 포트 publish는 없습니다.
+- `sandbox_environment`는 Docker 데몬의 rootless·userns 여부를 `daemonIsolation`에 기록합니다. 필수 조건은 아닙니다.
 - 컨테이너당 CPU 0.5, 메모리/스왑 합계 128 MiB, PID 64, `/tmp` tmpfs 4 MiB를 제한합니다. `runsc`의 PID 제한은 가상 게스트 프로세스 수가 아니라 호스트 태스크 기준입니다.
 - 한 state 디렉터리에서 동시 실험 2개, 전체 기록 20개, 실험당 시도·reset 각 4회를 제한합니다.
 - 비교/reset은 8초, 일반 Docker 호출은 10초, 출력은 합계 32 KiB로 제한합니다. 호스트 전용 빌드는 120초입니다.

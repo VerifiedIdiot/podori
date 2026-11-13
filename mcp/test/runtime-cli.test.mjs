@@ -42,8 +42,8 @@ async function fixture(t) {
 
 test('G01/G02/G03: host prepare and approve bind explicit runtime and native build platform', async t => {
   const f=await fixture(t);
-  for(const architecture of ['aarch64','x86_64']) for(const selection of [undefined,'--runtime=runc','--runtime=runsc']) {
-    const runtime=selection==='--runtime=runsc'?'runsc':'runc';
+  for(const architecture of ['aarch64','x86_64']) for(const selection of [undefined,'--runtime=runc','--runtime=runsc','--runtime=kata']) {
+    const runtime=selection?.slice('--runtime='.length) ?? 'runc';
     const {dir,config}=f.state(architecture,runtime);
     const result=f.call(['prepare',dir,f.endpoint,...(selection?[selection]:[])]);
     assert.equal(result.status,0,result.stderr);

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 
 test('G07: CI selects only the literal runtime and expected native architecture', () => {
-  for(const runtime of [undefined,'runc','runsc']) for(const arch of [undefined,'arm64','amd64']) {
+  for(const runtime of [undefined,'runc','runsc','kata']) for(const arch of [undefined,'arm64','amd64']) {
     const env={...process.env};delete env.PODORI_TEST_RUNTIME;delete env.PODORI_EXPECTED_ARCH;
     if(runtime)env.PODORI_TEST_RUNTIME=runtime;
     if(arch)env.PODORI_EXPECTED_ARCH=arch;

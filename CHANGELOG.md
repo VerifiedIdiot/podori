@@ -1,5 +1,19 @@
 # 변경 이력
 
+## 미출시
+
+- 권고 조회를 로컬 스냅샷 전용으로 변경, 갱신은 작업 밖의 별도 유지보수로 분리
+- 실제 악용 근거로 CISA KEV 추가
+- MCP 안내서에 운영체제별 권장 런타임 추가
+- `sandbox_environment`에 Docker 데몬의 rootless·userns 여부 기록
+
+### English
+
+- Advisory checks use only the approved local snapshot. Refresh is separate maintenance outside the task.
+- CISA KEV supplies known-exploitation evidence.
+- The MCP guide lists the recommended runtime for each operating system.
+- `sandbox_environment` records the Docker daemon rootless and userns state.
+
 ## 1.0.0
 
 - 다섯 독립 스킬과 선택형 MCP의 1.x 호환 범위 명시

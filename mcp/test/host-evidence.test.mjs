@@ -40,3 +40,22 @@ test('G06: collect native runsc cgroup and sentry evidence from the inspected PI
     assert.throws(()=>hostControls.collectHostControls(config,actual,bad.host),/host-controls-mismatch/);
   }
 });
+
+test('G06: collect KVM evidence only from the inspected PID that Kata named for the container', () => {
+  const config=configuration({runtime:'kata'}),actual=inspection(config,id),pid=actual.State.Pid;
+  const stat=`${pid} (qemu-system-x86) S `+Array.from({length:19},(_,i)=>i===18?'100':'0').join(' ');
+  const command=['/opt/kata/bin/qemu-system-x86_64','-name',`sandbox-${actual.Id}`,'-machine','q35,accel=kvm,nvdimm=on',''];
+  const reader=(args=command,status=stat)=>({os:'linux',arch:'arm64',realpath:path=>path,read:path=>{
+    if(path===`/proc/${pid}/stat`)return status;
+    if(path===`/proc/${pid}/cmdline`)return args.join('\0');
+    throw new Error('missing-host-file');
+  }});
+  const result=hostControls.collectVm(config,actual,reader());
+  assert.equal(result.source,'native-linux-kvm');assert.equal(result.containerId,actual.Id);assert.equal(result.pid,pid);assert.equal(result.processStart,'100');
+  for(const patch of [{os:'darwin'},{arch:'x64'}]) assert.throws(()=>hostControls.collectVm(config,actual,{...reader(),...patch}),/native-host-evidence-unavailable/);
+  assert.throws(()=>hostControls.collectVm(configuration({runtime:'runsc'}),actual,reader()),/native-host-evidence-unavailable/);
+  for(const args of [['/usr/bin/sleep','45'],command.map(x=>x.replace('accel=kvm','accel=tcg')),command.map(x=>x.replace(actual.Id,'e'.repeat(64))),['qemu','-name',`not-sandbox-${actual.Id}`,'-machine','q35,accel=kvm']]) assert.throws(()=>hostControls.collectVm(config,actual,reader(args)),/vm-evidence-mismatch/);
+  let reads=0;const moved=reader();const read=moved.read;
+  moved.read=path=>path===`/proc/${pid}/stat` && ++reads>1?stat.replace(' 100',' 200'):read(path);
+  assert.throws(()=>hostControls.collectVm(config,actual,moved),/host-process-changed/);
+});

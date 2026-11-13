@@ -8,7 +8,7 @@ export function configuration(patch = {}) {
 
 test('G03/G04: policy and approval bind runtime registration and native platform with no legacy migration', () => {
   const token='c'.repeat(64);
-  for(const runtime of ['runc','runsc']) for(const platform of ['linux/arm64','linux/amd64']) {
+  for(const runtime of ['runc','runsc','kata']) for(const platform of ['linux/arm64','linux/amd64']) {
     const config=configuration({runtime,platform});
     assert.equal(Config.safeParse(config).success,true,'The selected runtime and platform need a strict policy');
     const approval={version:2,id:'ed775a7d-1eb9-46b6-81c1-cecb9503eff9',reportId:'report-1',itemId:'auth-1',target:'synthetic-http-v1',scenario:'authorization',runtime,runtimeConfigHash:config.runtimeConfigHash,platform,fixtureRevision:config.fixtureRevision,imageId:config.imageId,budget:BUDGET,expiresAt:new Date(Date.now()+60_000).toISOString(),claimHash:digest(token)};
