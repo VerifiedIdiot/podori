@@ -6,7 +6,7 @@ metadata:
   version: "1.0.0"
   author: VerifiedIdiot
   platforms: "linux, macos"
-compatibility: Execution requires a separately prepared local stdio MCP server and approved images. The Docker host must provide native Linux ARM64 or AMD64 with runc or runsc. The trusted host operator must issue approval before execution. Prepare all runtime dependencies before the task.
+compatibility: Execution requires a separately prepared local stdio MCP server and approved images. The Docker host must provide native Linux ARM64 or AMD64 with runc, runsc, or kata. The trusted host operator must issue approval before execution. Prepare all runtime dependencies before the task.
 ---
 
 # podori-wreck

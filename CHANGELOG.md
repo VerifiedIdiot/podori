@@ -4,6 +4,7 @@
 
 - 권고 조회를 로컬 스냅샷 전용으로 변경, 갱신은 작업 밖의 별도 유지보수로 분리
 - 실제 악용 근거로 CISA KEV 추가
+- 선택형 Kata(`kata`) 런타임 추가, 게스트 통제와 호스트의 KVM 프로세스 확인
 - MCP 안내서에 운영체제별 권장 런타임 추가
 - `sandbox_environment`에 Docker 데몬의 rootless·userns 여부 기록
 
@@ -11,6 +12,7 @@
 
 - Advisory checks use only the approved local snapshot. Refresh is separate maintenance outside the task.
 - CISA KEV supplies known-exploitation evidence.
+- Optional Kata (`kata`) runtime with guest controls and bound host KVM evidence.
 - The MCP guide lists the recommended runtime for each operating system.
 - `sandbox_environment` records the Docker daemon rootless and userns state.
 
