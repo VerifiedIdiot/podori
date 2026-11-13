@@ -5,7 +5,7 @@ import { BUDGET, objectHash } from '../dist/policy.js';
 import { fixtureRevision } from '../dist/docker.js';
 
 export function host(patch = {}) {
-  return {OSType:'linux',Architecture:'aarch64',CgroupVersion:'2',MemoryLimit:true,PidsLimit:true,CpuCfsQuota:true,SecurityOptions:['name=seccomp,profile=builtin'],Runtimes:{runc:{path:'runc'},runsc:{path:'/usr/local/bin/runsc',runtimeArgs:[]}},...patch};
+  return {OSType:'linux',Architecture:'aarch64',CgroupVersion:'2',MemoryLimit:true,PidsLimit:true,CpuCfsQuota:true,SecurityOptions:['name=seccomp,profile=builtin'],Runtimes:{runc:{path:'runc'},runsc:{path:'/usr/local/bin/runsc',runtimeArgs:[]},kata:{runtimeType:'/opt/kata/bin/containerd-shim-kata-v2'}},...patch};
 }
 export function configuration(patch = {}) {
   const runtime=patch.runtime ?? 'runc';
@@ -31,4 +31,7 @@ export function probe(patch = {}) {
 }
 export function hostEvidence(config, actual) {
   return {source:'native-linux-cgroup-v2',runtime:config.runtime,runtimeConfigHash:config.runtimeConfigHash,platform:config.platform,containerId:actual.Id,pid:actual.State.Pid,cgroupPath:`/system.slice/docker-${actual.Id}.scope`,members:[actual.State.Pid],memoryMax:String(BUDGET.memory),memorySwapMax:'0',pidsMax:String(BUDGET.pids),cpuMax:'50000 100000',seccomp:2,noNewPrivs:1,processStart:'100',capturedAt:new Date().toISOString()};
+}
+export function vmEvidence(config, actual) {
+  return {source:'native-linux-kvm',runtime:config.runtime,runtimeConfigHash:config.runtimeConfigHash,platform:config.platform,containerId:actual.Id,pid:actual.State.Pid,processStart:'100',capturedAt:new Date().toISOString()};
 }

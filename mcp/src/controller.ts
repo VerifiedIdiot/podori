@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { BUDGET, Access, Approval, Config, CreateInput, Hash, Id, RunInput, Runtime, Platform, Scenario, authorize, digest, matchesToken, objectHash, scopeValid, type Configuration } from './policy.js';
-import { DockerBackend, CommandFailure } from './docker.js';
+import { DockerBackend, CommandFailure, daemonIsolation } from './docker.js';
 import { Store } from './store.js';
 import { HttpObservation, INITIAL, evaluate, requests, unverified } from './evidence.js';
 
@@ -99,8 +99,8 @@ export class Controller {
     if(this.environmentBusy)throw new Error('control-concurrency-limit');
     this.environmentBusy=true;
     try {
-      await this.backend.preflight();
-      return {configured:true,available:true,target:'synthetic-http-v1',runtime:this.config.runtime,runtimeConfigHash:this.config.runtimeConfigHash,platform:this.config.platform,fixtureRevision:this.config.fixtureRevision,imageId:this.config.imageId,budget:BUDGET};
+      const host=await this.backend.preflight();
+      return {configured:true,available:true,target:'synthetic-http-v1',runtime:this.config.runtime,runtimeConfigHash:this.config.runtimeConfigHash,platform:this.config.platform,fixtureRevision:this.config.fixtureRevision,imageId:this.config.imageId,budget:BUDGET,daemonIsolation:daemonIsolation(host)};
     } finally {this.environmentBusy=false;}
   }
   create(input:unknown):unknown {

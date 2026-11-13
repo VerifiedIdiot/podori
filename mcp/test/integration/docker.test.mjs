@@ -17,7 +17,7 @@ test('A4/A7: the actual container enforces controls and serves normal HTTP reque
     enforceContainer(actual.inspection,config,backend.name(id));
     enforceProbe(actual.probe,config,actual.hostControls,actual.inspection);
     assert.equal(actual.inspection.HostConfig.Runtime,config.runtime);
-    assert.equal(actual.hostControls?.source ?? null,config.runtime==='runsc'?'native-linux-cgroup-v2':null);
+    assert.equal(actual.hostControls?.source ?? null,{runsc:'native-linux-cgroup-v2',kata:'native-linux-kvm'}[config.runtime] ?? null);
     assert.equal(actual.probe.uid,1000);
     assert.equal(actual.probe.rootWrite,'EROFS');
     assert.equal(actual.probe.egress4.connected,false);

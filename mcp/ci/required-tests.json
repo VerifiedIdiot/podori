@@ -195,6 +195,14 @@
     {
       "file": "test/package-compatibility.test.mjs",
       "name": "PKG07: all five packages require SKILL.md and matching names"
+    },
+    {
+      "file": "test/host-evidence.test.mjs",
+      "name": "G06: collect KVM evidence only from the inspected PID that Kata named for the container"
+    },
+    {
+      "file": "test/runtime-probe.test.mjs",
+      "name": "G06: kata requires bound KVM evidence and guest controls without the guest PID limit"
     }
   ],
   "integration": [

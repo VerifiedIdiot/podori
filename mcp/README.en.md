@@ -44,6 +44,20 @@ linux/arm64 manifest: sha256:156e9bc7a0a267cc6ca77b4283e32b123479342df684ce29745
 linux/amd64 manifest: sha256:ec857ea6bb60cb3d0fa4d97495590c5fe7d51be8572c307b55957eeb06569cf7
 ```
 
+## Selection by operating system
+
+Select the strongest isolation available on each host. Container controls and the in-guest probe remain the same on every host.
+
+| Host | Recommended selection | Boundary to the host |
+|---|---|---|
+| Linux ARM64 and AMD64 | `runsc` | gVisor userspace kernel with host cgroup checks |
+| macOS | `runc` | The Linux VM that Docker uses |
+| Windows | The Linux configuration inside WSL2 | The WSL2 VM |
+
+On macOS, the MCP runs outside the VM and cannot read host PIDs or cgroups, so `runsc` is unavailable. Native Windows execution is unsupported because the package requires a Unix socket and POSIX ownership and mode checks.
+
+CI verifies both runtimes on Linux. On macOS, unit and integration tests were verified manually with `runc` on ARM64 Docker Desktop. macOS AMD64 and WSL2 are unverified.
+
 ## Optional gVisor isolation
 
 gVisor handles application system calls in a userspace kernel and reduces direct exploitation paths to the host kernel. It does not replace host security updates or guarantee protection against every vulnerability. Read the [gVisor security model](https://gvisor.dev/docs/architecture_guide/security/) for its protection boundary.
@@ -133,6 +147,7 @@ Keep separate new claims and optional experiments on a follow-up list. Do not ex
 
 - Each container uses network none, non-root 1000:1000, cap-drop ALL, no-new-privileges, and a read-only rootfs.
 - Containers have no host bind mounts, Docker socket, user credentials, or published ports.
+- `sandbox_environment` records the Docker daemon rootless and userns state in `daemonIsolation`. Neither is required.
 - Each container has CPU 0.5, combined memory/swap 128 MiB, PID 64, and `/tmp` tmpfs 4 MiB limits. For `runsc`, PID limits cover host tasks rather than virtual guest process counts.
 - Each state directory permits 2 concurrent experiments and 20 total records. Each experiment permits 4 attempts and 4 resets.
 - Comparisons and resets have an 8-second limit. Ordinary Docker calls have a 10-second limit. Combined output cannot exceed 32 KiB. Host-only builds have a 120-second limit.

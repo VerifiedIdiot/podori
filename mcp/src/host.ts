@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { Approval, BUDGET, Config, Reference, Scenario, digest } from './policy.js';
+import { Approval, BUDGET, Config, Reference, Runtime, Scenario, digest } from './policy.js';
 import { Store } from './store.js';
 import { prepare } from './docker.js';
 import { safeError } from './controller.js';
@@ -7,8 +7,8 @@ import { safeError } from './controller.js';
 async function main():Promise<void> {
   const [command,root,...args]=process.argv.slice(2);
   if(!root)throw new Error('state-directory-required');
-  if(command==='prepare' && (args.length===1 || (args.length===2 && ['--runtime=runc','--runtime=runsc'].includes(args[1]!)))) {
-    const runtime=args[1]==='--runtime=runsc'?'runsc':'runc';
+  if(command==='prepare' && (args.length===1 || (args.length===2 && /^--runtime=(runc|runsc|kata)$/.test(args[1]!)))) {
+    const runtime=Runtime.parse(args[1]?.slice('--runtime='.length) ?? 'runc');
     new Store(root,true);
     if(new Store(root).names('policy').length>0)throw new Error('already-prepared');
     const config=await prepare(root,args[0]!,runtime);

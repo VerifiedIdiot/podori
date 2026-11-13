@@ -23,6 +23,10 @@ jobs:
             arch: amd64
           - runner: ubuntu-24.04-arm
             arch: arm64
+          # Hosted ARM64 runners expose no KVM device.
+          - runner: ubuntu-24.04
+            arch: amd64
+            runtime: kata
     env:
       PODORI_TEST_RUNTIME: ${{ matrix.runtime }}
       PODORI_EXPECTED_ARCH: ${{ matrix.arch }}
