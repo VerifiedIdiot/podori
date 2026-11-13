@@ -6,7 +6,7 @@ Apply this procedure to application changes or explicitly required executable ch
 
 Use the target project's existing test runner and configured check commands.
 Before edits, record required test IDs, observable assertions, commands, and the remaining budget.
-Record source, configuration, dependency, test, and environment identities.
+Identify inputs by the version-control revision, relevant uncommitted paths, and the runtime version.
 Where applicable, fix seeds, clocks, fixtures, and test state.
 Use existing report formats and prepared tools without a mandatory new runtime or service.
 

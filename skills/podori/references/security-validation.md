@@ -1,39 +1,36 @@
 # Security Validation
 
-## Report and conventions
+## Record and conventions
 
-For assessments or fixes, keep one current [report](../templates/security-report.md).
-Before application changes, create a [convention baseline](../templates/project-conventions.md).
-For ordinary feature work, use a concise task record with scope, conventions, security criteria, normal-use criteria, and required checks.
-Create the applicable record before application edits.
+Keep one current record at the size the entry document selects.
+For ordinary feature work, record scope, conventions, security criteria, normal-use criteria, and required checks.
+Create the record before application edits.
 Do not fabricate vulnerability findings for feature work.
-Without write authority, include required report and coverage fields in the response.
+Without write authority, include the record in the response.
 Otherwise, use the approved project or host artifact location.
 Keep records outside application source unless the project specifies otherwise.
-Scale records to scope.
-Populate applicable templates with source identities, relevant uncommitted evidence, and revisions.
+Identify source by its version-control revision and relevant uncommitted paths.
 Separate source-supported candidates, proposed work, and executed test results.
 Only authorized feature work and evidence-confirmed vulnerability fixes enter executable work.
-Reports grant no execution or change authority.
+Records grant no execution or change authority.
 Block approval/evidence-dependent items without blocking unrelated authorized work.
-Before each change, compare current source and assumptions against the applicable records.
 Revalidate affected required items only when their source, assumptions, or evidence materially change.
-Update actual changes, results, exceptions, and unresolved checks in the same records.
+Update actual changes, results, exceptions, and unresolved checks in the same record.
 Preserve resolved items' original evidence.
 
 Derive conventions from applicable instructions, approved documentation, tool configuration, and representative nearby code before edits.
-Distinguish explicit requirements, observed patterns, and unresolved conflicts.
-Cite files/configuration for every convention.
-Cover affected naming, module boundaries, dependencies, errors, logging, tests, formatting, lint, and types.
+Record only the conventions that the change touches, each with its source, in the same record.
+Use the [convention baseline](../templates/project-conventions.md) only for conflicting conventions or required exceptions.
 Use configured tools/commands, not invented rules or personal preferences.
 Resolve conflicts before dependent changes.
-For vulnerable conventions, propose safe exceptions with report-linked reason, scope, and required approval.
+For vulnerable conventions, propose safe exceptions with record-linked reason, scope, and required approval.
 Apply exceptions only within existing authority.
 Exclude unrelated style changes and repository-wide formatting.
 
 ## Coverage
 
-For security assessments, populate report coverage for every material attack path within the frozen scope.
+For security assessments, list every material attack path within the frozen scope once with its status.
+In the compact record, use its fixed boundary rows instead.
 Use `open`, `reviewed`, `deferred`, or `out_of_scope`.
 Require source traces and control checks for `reviewed`, even with unresolved defects.
 Record reasons and next checks for deferred/excluded paths.
@@ -64,6 +61,7 @@ Deduplicate candidates by root cause and boundary.
 ## Severity and work order
 
 Classify confirmed vulnerabilities with CVSS v4.0.
+Without an approved local score record or a verified calculator, record `unrated` once for the record and omit the score fields.
 Use CVSS-B for new local assessments.
 Record the version, nomenclature, vector, metric evidence, score source, and assessment date.
 Use approved local score records or an available, verified calculator.
@@ -95,10 +93,21 @@ Do not fetch the source during review.
 ## Safe execution
 
 Inspect relevant commands, hooks, and dependencies before execution.
-Execute unfamiliar target code only in an approved disposable OS-level sandbox.
-Exclude host credentials, production data, privileges, and unrelated host mounts.
+Run target code on the host only when every condition holds.
+
+- The project configuration declares the command as a test or check command.
+- You read the command, its hooks, and the project files that it runs.
+- The command installs and downloads nothing.
+- The project has no dependencies, or its installed dependencies match an unchanged lockfile.
+- The command needs no credentials, production data, or external network.
+
+Loopback connections are not external network.
+These conditions need no separate approval.
+Otherwise, execute target code only in an approved disposable OS-level sandbox.
+Record the execution location as `host` or `sandbox`.
+In the sandbox, exclude host credentials, production data, privileges, and unrelated host mounts.
 Disable external network unless the user explicitly approves its scope.
-Bound CPU, memory, storage, and runtime.
+In the sandbox, bound CPU, memory, storage, and runtime.
 Use synthetic data and controlled test services.
 Do not download or execute malware.
 Without required isolation, continue static review without runtime claims.
@@ -117,4 +126,4 @@ Check the complete diff against the frozen scope, conventions, and affected boun
 Separate pre-existing failures from introduced regressions.
 Record source identities, commands, exit status, reports, and unresolved checks without secrets.
 Without safe execution or required evidence, leave the dependent fix unverified.
-Complete the report under the [completion contract](report-completion.md).
+Complete the selected record.

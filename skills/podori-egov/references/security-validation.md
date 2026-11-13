@@ -101,11 +101,22 @@ Do not fetch the source during review.
 ## Safe execution
 
 Inspect relevant commands, hooks, and dependencies before execution.
-Execute unfamiliar target code only in an approved disposable OS-level sandbox.
-Exclude host credentials, production data, privileges, and unrelated host mounts.
+Run target code on the host only when every condition holds.
+
+- The project configuration declares the command as a test or check command.
+- You read the command, its hooks, and the project files that it runs.
+- The command installs and downloads nothing.
+- The project has no dependencies, or its installed dependencies match an unchanged lockfile.
+- The command needs no credentials, production data, or external network.
+
+Loopback connections are not external network.
+These conditions need no separate approval.
+Otherwise, execute target code only in an approved disposable OS-level sandbox.
+Record the execution location as `host` or `sandbox`.
+In the sandbox, exclude host credentials, production data, privileges, and unrelated host mounts.
 Disable external network for review and test execution.
 Treat any external-network exception as a separate approved task outside this offline assessment.
-Bound CPU, memory, storage, and runtime.
+In the sandbox, bound CPU, memory, storage, and runtime.
 Use synthetic data and controlled test services.
 Do not download or execute malware.
 Without required isolation, continue static review without runtime claims.
