@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const names = ['podori', 'podori-egov', 'podori-doubt', 'podori-trap', 'podori-wreck'];
+const names = ['podori', 'podori-egov', 'podori-doubt', 'podori-trap', 'podori-sandbox'];
 const source = resolve('..', 'skills');
 const checker = resolve('test/compatibility.test.mjs');
 

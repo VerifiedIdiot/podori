@@ -4,7 +4,7 @@
 
 **함정부터 격리 검증까지, 쓰던 AI 에이전트로.**
 
-한국어 안내 | [English](README.en.md) · `1.0.0`
+한국어 안내 | [English](README.en.md) · `1.1.0`
 
 podori(포돌이)는 평소 쓰는 AI 코딩 에이전트에 보안 점검과 수정, 테스트를 맡기는 스킬 모음입니다. 앱에 맞는 함정을 구현하고, gVisor로 격리한 환경에서 실행 검증을 할 수 있도록 돕습니다.
 
@@ -49,7 +49,7 @@ podori의 선택형 로컬 MCP는 Linux에서 gVisor를 지원합니다. 동봉�
 
 ## 내 프로젝트에서 시작하기
 
-릴리스 태그 `v1.0.0`에서 필요한 스킬 폴더 **전체**를 에이전트의 스킬 경로에 복사한 뒤, 대상 프로젝트에서 스킬을 호출하세요. 함정부터 시작하려면 `skills/podori-trap/`을 설치합니다.
+릴리스 태그 `v1.1.0`에서 필요한 스킬 폴더 **전체**를 에이전트의 스킬 경로에 복사한 뒤, 대상 프로젝트에서 스킬을 호출하세요. 함정부터 시작하려면 `skills/podori-trap/`을 설치합니다.
 
 ```text
 /podori-trap
@@ -66,11 +66,11 @@ podori의 선택형 로컬 MCP는 Linux에서 gVisor를 지원합니다. 동봉�
 | 원하는 작업 | 설치할 스킬 |
 |---|---|
 | 앱 맞춤 함정과 대응 구현 | [podori-trap](skills/podori-trap/SKILL.md) |
-| gVisor 등 샌드박스에서 샘플 앱 검증 | [podori-wreck](skills/podori-wreck/SKILL.md) |
+| gVisor 등 샌드박스에서 샘플 앱 검증 | [podori-sandbox](skills/podori-sandbox/SKILL.md) |
 | 보안 문제 점검·수정·테스트 | [podori](skills/podori/SKILL.md) |
 | 패키지·컨테이너 이미지의 출처와 위험 점검 | [podori-doubt](skills/podori-doubt/SKILL.md) |
 | 전자정부프레임워크 보안 기준 점검 | [podori-egov](skills/podori-egov/README.md) |
 
-설치 위치와 호출 방식은 에이전트의 안내를 따릅니다. `podori-wreck`에는 별도의 로컬 MCP 설정과 실행 승인이 필요합니다.
+설치 위치와 호출 방식은 에이전트의 안내를 따릅니다. `podori-sandbox`에는 별도의 로컬 MCP 설정과 실행 승인이 필요합니다.
 
 [변경 이력](CHANGELOG.md) · [MIT](LICENSE) · VerifiedIdiot

@@ -7,7 +7,7 @@ function documents(root) {
   return readdirSync(root,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?documents(join(root,entry.name)):entry.name.endsWith('.md')?[join(root,entry.name)]:[]);
 }
 test('A11: each existing skill remains self-contained without MCP and doubt remains non-executing', () => {
-  const names=['podori','podori-egov','podori-doubt','podori-trap','podori-wreck'];
+  const names=['podori','podori-egov','podori-doubt','podori-trap','podori-sandbox'];
   for(const name of names) {
     const root=resolve('..','skills',name), skill=readFileSync(join(root,'SKILL.md'),'utf8');
     assert.ok(existsSync(join(root,'LICENSE')), `Missing LICENSE in ${name}`);
@@ -17,7 +17,7 @@ test('A11: each existing skill remains self-contained without MCP and doubt rema
     assert.match(metadata ?? '',/^ {2}version: (["'])\d+\.\d+\.\d+(?:[-+][\w.-]+)?\1\r?$/m);
     const version = metadata.match(/^ {2}version: (["'])([^"']+)\1\r?$/m)?.[2];
     assert.equal(version, JSON.parse(readFileSync('package.json', 'utf8')).version, `${name} version must match MCP`);
-    if (name === 'podori-wreck') {
+    if (name === 'podori-sandbox') {
       assert.match(skill, /Execution requires a separately prepared local MCP server\./);
       assert.match(skill, /This instruction package does not include that runtime\./);
     } else {

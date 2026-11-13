@@ -2,7 +2,7 @@
 
 [한국어 안내](README.md) | English
 
-This optional local stdio package accompanies `1.0.0`. The four existing skills work without this package.
+This optional local stdio package accompanies `1.1.0`. The four existing skills work without this package.
 
 ## Supported scope
 
@@ -137,7 +137,7 @@ Incompatible tool, input, or approval contract changes require a new major versi
 
 ## MCP use
 
-Read `../skills/podori-wreck/references/tool-contract.md` for the complete input and tool contract.
+Read `../skills/podori-sandbox/references/tool-contract.md` for the complete input and tool contract.
 
 | Step | Tool | Behavior |
 |---|---|---|
