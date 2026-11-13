@@ -34,7 +34,8 @@ export function enforceHost(input:unknown, runtime:RuntimeName='runc'): {platfor
   else throw new Error('unsupported-host-architecture');
   if (h.CgroupVersion!=='2' || !h.MemoryLimit || !h.PidsLimit || !h.CpuCfsQuota || !h.SecurityOptions.includes('name=seccomp,profile=builtin')) throw new Error('required-host-controls-unavailable');
   const registered=h.Runtimes[runtime];
-  if(!registered || Object.keys(registered).length===0)throw new Error('runtime-unavailable');
+  // Docker reports a shim-type registration such as kata as an empty object.
+  if(!registered || (runtime!=='kata' && Object.keys(registered).length===0))throw new Error('runtime-unavailable');
   return {platform,runtimeConfigHash:objectHash(registered)};
 }
 // Recorded, not required: a default daemon reports neither option.

@@ -19,7 +19,7 @@
 
 승인된 로컬 Docker Unix socket, Linux ARM64 또는 AMD64 이미지, cgroup v2, 기본 seccomp와 CPU·메모리·PID 제한 지원이 필요합니다. Docker 호스트의 아키텍처에 맞춰 이미지를 선택하며 에뮬레이션으로 우회하지 않습니다. 원격 TCP/SSH endpoint는 거절합니다. Docker CLI에 넘기는 환경은 별도로 제한하며, 저장된 endpoint를 모든 실행에 명시합니다.
 
-호스트 Node 지원 선언은 `>=24 <26`입니다. 게스트는 고정 Node 24.22.0을 사용합니다. 기본 런타임은 `runc`이며 `runsc`를 별도로 선택할 수 있습니다.
+호스트 Node 지원 선언은 `>=24 <26`입니다. 게스트는 고정 Node 24.22.0을 사용합니다. 기본 런타임은 `runc`이며 `runsc`나 `kata`를 별도로 선택할 수 있습니다.
 
 아래 명령은 연결된 준비 환경의 예시입니다. 폐쇄망에는 같은 lockfile의 의존성을 검증해 반입하고, 준비된 npm 캐시나 승인된 내부 레지스트리를 사용합니다.
 
@@ -47,13 +47,14 @@ linux/amd64 manifest: sha256:ec857ea6bb60cb3d0fa4d97495590c5fe7d51be8572c307b559
 
 | 호스트 | 권장 선택 | 호스트와의 경계 |
 |---|---|---|
-| Linux ARM64·AMD64 | `runsc` | gVisor 사용자 공간 커널과 호스트 cgroup 확인 |
+| Linux AMD64, KVM 있음 | `kata` | 전용 게스트 커널을 가진 KVM 가상 머신 |
+| Linux ARM64·AMD64, KVM 없음 | `runsc` | gVisor 사용자 공간 커널과 호스트 cgroup 확인 |
 | macOS | `runc` | Docker가 사용하는 Linux VM |
 | Windows | WSL2 안에서 Linux 구성 | WSL2 VM |
 
-macOS에서는 MCP가 VM 밖에서 실행되어 호스트 PID와 cgroup을 읽을 수 없으므로 `runsc`를 선택할 수 없습니다. Windows 네이티브 실행은 지원하지 않습니다. Unix socket과 POSIX 소유권·권한 검사가 필요하기 때문입니다.
+macOS에서는 MCP가 VM 밖에서 실행되어 호스트 PID와 cgroup을 읽을 수 없으므로 `runsc`와 `kata`를 선택할 수 없습니다. Windows 네이티브 실행은 지원하지 않습니다. Unix socket과 POSIX 소유권·권한 검사가 필요하기 때문입니다.
 
-Linux는 CI에서 두 런타임을 검증합니다. macOS는 ARM64 Docker Desktop의 `runc`에서 단위·통합 시험을 수동으로 확인했습니다. macOS AMD64와 WSL2는 확인하지 않았습니다.
+Linux는 CI에서 `runc`와 `runsc`를 두 아키텍처에서, `kata`를 AMD64에서 검증합니다. GitHub의 ARM64 러너에는 KVM이 없어 ARM64의 `kata`는 확인하지 않았습니다. macOS는 ARM64 Docker Desktop의 `runc`에서 단위·통합 시험을 수동으로 확인했습니다. macOS AMD64와 WSL2는 확인하지 않았습니다.
 
 ## gVisor 선택형 격리 실행
 
@@ -64,6 +65,24 @@ gVisor를 사용하려면 Linux Docker 호스트에 `runsc`를 설치하고 같�
 `runsc` 모드에서는 MCP도 Docker와 같은 네이티브 Linux 호스트에서 실행합니다. 호스트의 실제 PID와 cgroup을 읽을 수 있어야 합니다. macOS에서 사용할 때는 별도 Linux 환경에 이 구성을 준비합니다. 패키지는 Docker Desktop VM이나 기본 런타임 설정을 자동 변경하지 않습니다.
 
 런타임 등록 설정의 해시와 플랫폼을 승인에 고정하고 실제 컨테이너 런타임을 확인합니다. gVisor 내부의 가상 `/proc`·cgroup과 호스트 통제를 구분합니다. 등록 설정 해시는 런타임 실행 파일의 무결성 증명은 아닙니다. 필요한 관측이 없으면 실행을 거절합니다.
+
+## Kata 선택형 격리 실행
+
+Kata Containers는 컨테이너를 전용 게스트 커널을 가진 KVM 가상 머신 안에서 실행합니다. 앱은 호스트 커널의 시스템 콜을 직접 호출하지 않습니다. 가상 머신 탈출 취약점을 막는 보장이나 호스트 보안 패치의 대체는 아닙니다.
+
+KVM을 쓸 수 있는 Linux Docker 호스트에 Kata를 설치하고 `kata` 이름의 런타임으로 등록합니다. Kata 4.3.1은 Docker 연동에 Go 런타임 패키지(`kata-go-static`)를 사용하며 QEMU만 시험합니다. 설치 방법은 [Kata 공식 안내](https://github.com/kata-containers/kata-containers/blob/4.3.1/docs/how-to/how-to-use-kata-with-docker.md)를 참고합니다.
+
+Kata 기본 설정은 게스트 seccomp를 끕니다. `/etc/kata-containers/configuration.toml`에 `disable_guest_seccomp = false`를 설정하세요. 꺼진 상태에서는 격리 probe가 실패하며 실행을 거절합니다.
+
+`kata` 모드에서도 MCP는 Docker와 같은 네이티브 Linux 호스트에서 실행합니다. 검사한 컨테이너 PID가 이 컨테이너 이름으로 실행된 KVM 프로세스인지 호스트에서 확인합니다. 확인할 수 없으면 실행을 거절합니다. Docker는 Kata 같은 shim 방식 런타임의 등록 설정을 노출하지 않습니다. 따라서 등록 설정 해시는 Kata 등록의 변경을 감지하지 못합니다.
+
+다음 통제는 `runc`와 다릅니다.
+
+- PID 제한 64는 게스트에 적용되지 않습니다.
+- 메모리 128 MiB와 CPU 0.5는 게스트 안에서 적용됩니다. 호스트에서 가상 머신은 Kata 설정의 크기로 실행됩니다. 기본값은 2048 MiB입니다.
+- 호스트의 QEMU 프로세스는 Kata 기본 설정에서 root로 실행됩니다.
+
+CI 관측에서 시작부터 다섯 동작 완료까지 `runc`는 약 2.6초, `kata`는 약 5초였습니다.
 
 ## 신뢰된 호스트 운영자 절차
 
@@ -79,7 +98,7 @@ ENDPOINT="$(docker context inspect --format '{{.Endpoints.docker.Host}}')"
 node dist/host.js prepare "$STATE" "$ENDPOINT"
 ```
 
-gVisor를 선택할 때는 마지막 인자에 `--runtime=runsc`를 추가합니다. 기본값은 `runc`이며 `--runtime=runc`로 명시할 수도 있습니다. 선택한 런타임이 없거나 설정이 바뀌면 중단하며 다른 런타임으로 자동 전환하지 않습니다.
+gVisor를 선택할 때는 마지막 인자에 `--runtime=runsc`를, Kata를 선택할 때는 `--runtime=kata`를 추가합니다. 기본값은 `runc`이며 `--runtime=runc`로 명시할 수도 있습니다. 선택한 런타임이 없거나 설정이 바뀌면 중단하며 다른 런타임으로 자동 전환하지 않습니다.
 
 0.6.0의 policy·승인 파일은 재사용하지 않습니다. 기존 버전으로 실험을 종료·정리한 뒤 새 state 디렉터리에서 준비와 승인을 진행하세요. 기존 기록을 자동 변환하거나 덮어쓰지 않습니다.
 
@@ -145,7 +164,7 @@ state 인자 없이 실행하면 환경 미구성 여부만 조회할 수 있습
 - 컨테이너마다 network none, non-root 1000:1000, cap-drop ALL, no-new-privileges, read-only rootfs를 적용합니다.
 - 호스트 bind mount, Docker socket, 사용자 자격 증명, 포트 publish는 없습니다.
 - `sandbox_environment`는 Docker 데몬의 rootless·userns 여부를 `daemonIsolation`에 기록합니다. 필수 조건은 아닙니다.
-- 컨테이너당 CPU 0.5, 메모리/스왑 합계 128 MiB, PID 64, `/tmp` tmpfs 4 MiB를 제한합니다. `runsc`의 PID 제한은 가상 게스트 프로세스 수가 아니라 호스트 태스크 기준입니다.
+- 컨테이너당 CPU 0.5, 메모리/스왑 합계 128 MiB, PID 64, `/tmp` tmpfs 4 MiB를 제한합니다. `runsc`의 PID 제한은 가상 게스트 프로세스 수가 아니라 호스트 태스크 기준입니다. `kata`에서는 PID 제한이 게스트에 적용되지 않습니다.
 - 한 state 디렉터리에서 동시 실험 2개, 전체 기록 20개, 실험당 시도·reset 각 4회를 제한합니다.
 - 비교/reset은 8초, 일반 Docker 호출은 10초, 출력은 합계 32 KiB로 제한합니다. 호스트 전용 빌드는 120초입니다.
 - 독립된 고정 `/usr/bin/timeout`이 게스트를 45초 뒤 종료합니다. 제어부가 SIGKILL되어도 이 제한은 남습니다.

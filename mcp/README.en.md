@@ -22,7 +22,7 @@ MCP does not download missing components or substitute another runtime.
 
 The host requires an approved local Docker Unix socket and a Linux ARM64 or AMD64 image. It also requires cgroup v2, default seccomp, and CPU, memory, and PID limits. The MCP selects the Docker host's native architecture without emulation. It rejects remote TCP/SSH endpoints. It restricts the Docker CLI environment and explicitly selects the stored endpoint for every operation.
 
-The declared host Node range is `>=24 <26`. The guest uses the fixed Node 24.22.0 image. The default runtime is `runc`, with `runsc` as an explicit option.
+The declared host Node range is `>=24 <26`. The guest uses the fixed Node 24.22.0 image. The default runtime is `runc`, with `runsc` or `kata` as an explicit option.
 
 These commands apply to a connected preparation host. For an isolated host, stage the same locked dependencies. Use a prepared npm cache or an approved internal registry.
 
@@ -50,13 +50,14 @@ Select the strongest isolation available on each host. Container controls and th
 
 | Host | Recommended selection | Boundary to the host |
 |---|---|---|
-| Linux ARM64 and AMD64 | `runsc` | gVisor userspace kernel with host cgroup checks |
+| Linux AMD64 with KVM | `kata` | A KVM virtual machine with its own guest kernel |
+| Linux ARM64 and AMD64 without KVM | `runsc` | gVisor userspace kernel with host cgroup checks |
 | macOS | `runc` | The Linux VM that Docker uses |
 | Windows | The Linux configuration inside WSL2 | The WSL2 VM |
 
-On macOS, the MCP runs outside the VM and cannot read host PIDs or cgroups, so `runsc` is unavailable. Native Windows execution is unsupported because the package requires a Unix socket and POSIX ownership and mode checks.
+On macOS, the MCP runs outside the VM and cannot read host PIDs or cgroups, so `runsc` and `kata` are unavailable. Native Windows execution is unsupported because the package requires a Unix socket and POSIX ownership and mode checks.
 
-CI verifies both runtimes on Linux. On macOS, unit and integration tests were verified manually with `runc` on ARM64 Docker Desktop. macOS AMD64 and WSL2 are unverified.
+CI verifies `runc` and `runsc` on both Linux architectures and `kata` on AMD64. Hosted ARM64 runners expose no KVM device, so `kata` on ARM64 is unverified. On macOS, unit and integration tests were verified manually with `runc` on ARM64 Docker Desktop. macOS AMD64 and WSL2 are unverified.
 
 ## Optional gVisor isolation
 
@@ -67,6 +68,24 @@ For gVisor, install `runsc` on the Linux Docker host. Register it as the `runsc`
 The `runsc` mode requires MCP and Docker on the same native Linux host. MCP requires access to the actual host PID and cgroup records. On macOS, prepare this configuration in a separate Linux environment. The package does not modify the Docker Desktop VM or default runtime.
 
 Approval binds the registered runtime configuration hash and native platform. The server verifies the actual container runtime. It distinguishes gVisor's virtual `/proc` and cgroup values from host controls. The registration hash does not attest runtime executable bytes. Missing observations stop execution.
+
+## Optional Kata isolation
+
+Kata Containers runs the container inside a KVM virtual machine with its own guest kernel. The app does not call host kernel system calls directly. Kata does not guarantee protection against virtual machine escapes or replace host security updates.
+
+Install Kata on a Linux Docker host with KVM. Register it as the `kata` runtime. Kata 4.3.1 uses the Go runtime package (`kata-go-static`) for Docker and tests only QEMU. Read the [official Kata guide](https://github.com/kata-containers/kata-containers/blob/4.3.1/docs/how-to/how-to-use-kata-with-docker.md).
+
+The default Kata configuration disables guest seccomp. Set `disable_guest_seccomp = false` in `/etc/kata-containers/configuration.toml`. With guest seccomp disabled, the isolation probe fails and execution stops.
+
+The `kata` mode also requires MCP and Docker on the same native Linux host. On the host, MCP verifies that the inspected container PID is the KVM process that Kata named for this container. Missing evidence stops execution. Docker does not expose the registration of a shim-type runtime such as Kata. The registration hash therefore cannot detect a changed Kata registration.
+
+These controls differ from `runc`.
+
+- The PID limit of 64 is not applied in the guest.
+- The 128 MiB memory limit and the CPU 0.5 limit apply inside the guest. On the host, the virtual machine has the size from the Kata configuration. The default is 2048 MiB.
+- The host QEMU process runs as root in the default Kata configuration.
+
+In CI, start through five completed actions took about 2.6 seconds with `runc` and about 5 seconds with `kata`.
 
 ## Trusted host operator procedure
 
@@ -82,7 +101,7 @@ ENDPOINT="$(docker context inspect --format '{{.Endpoints.docker.Host}}')"
 node dist/host.js prepare "$STATE" "$ENDPOINT"
 ```
 
-For gVisor, append `--runtime=runsc`. The default is `runc`, which also accepts the explicit `--runtime=runc` argument. A missing runtime or changed registration stops execution without another runtime.
+For gVisor, append `--runtime=runsc`. For Kata, append `--runtime=kata`. The default is `runc`, which also accepts the explicit `--runtime=runc` argument. A missing runtime or changed registration stops execution without another runtime.
 
 Do not reuse policy or approval files from 0.6.0. First, stop and clean up experiments with the previous version. Then prepare a new state directory and issue new approvals. The package does not migrate or overwrite old records.
 
@@ -148,7 +167,7 @@ Keep separate new claims and optional experiments on a follow-up list. Do not ex
 - Each container uses network none, non-root 1000:1000, cap-drop ALL, no-new-privileges, and a read-only rootfs.
 - Containers have no host bind mounts, Docker socket, user credentials, or published ports.
 - `sandbox_environment` records the Docker daemon rootless and userns state in `daemonIsolation`. Neither is required.
-- Each container has CPU 0.5, combined memory/swap 128 MiB, PID 64, and `/tmp` tmpfs 4 MiB limits. For `runsc`, PID limits cover host tasks rather than virtual guest process counts.
+- Each container has CPU 0.5, combined memory/swap 128 MiB, PID 64, and `/tmp` tmpfs 4 MiB limits. For `runsc`, PID limits cover host tasks rather than virtual guest process counts. For `kata`, the PID limit is not applied in the guest.
 - Each state directory permits 2 concurrent experiments and 20 total records. Each experiment permits 4 attempts and 4 resets.
 - Comparisons and resets have an 8-second limit. Ordinary Docker calls have a 10-second limit. Combined output cannot exceed 32 KiB. Host-only builds have a 120-second limit.
 - The independent fixed `/usr/bin/timeout` terminates the guest after 45 seconds. This limit remains effective if SIGKILL terminates the controller.

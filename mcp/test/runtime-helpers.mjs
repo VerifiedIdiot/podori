@@ -5,7 +5,7 @@ import { BUDGET, objectHash } from '../dist/policy.js';
 import { fixtureRevision } from '../dist/docker.js';
 
 export function host(patch = {}) {
-  return {OSType:'linux',Architecture:'aarch64',CgroupVersion:'2',MemoryLimit:true,PidsLimit:true,CpuCfsQuota:true,SecurityOptions:['name=seccomp,profile=builtin'],Runtimes:{runc:{path:'runc'},runsc:{path:'/usr/local/bin/runsc',runtimeArgs:[]},kata:{runtimeType:'/opt/kata/bin/containerd-shim-kata-v2'}},...patch};
+  return {OSType:'linux',Architecture:'aarch64',CgroupVersion:'2',MemoryLimit:true,PidsLimit:true,CpuCfsQuota:true,SecurityOptions:['name=seccomp,profile=builtin'],Runtimes:{runc:{path:'runc'},runsc:{path:'/usr/local/bin/runsc',runtimeArgs:[]},kata:{}},...patch};
 }
 export function configuration(patch = {}) {
   const runtime=patch.runtime ?? 'runc';

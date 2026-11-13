@@ -4,7 +4,7 @@ import { daemonIsolation, enforceHost } from '../dist/docker.js';
 import { objectHash } from '../dist/policy.js';
 
 export function host(patch = {}) {
-  return {OSType:'linux',Architecture:'aarch64',CgroupVersion:'2',MemoryLimit:true,PidsLimit:true,CpuCfsQuota:true,SecurityOptions:['name=seccomp,profile=builtin'],Runtimes:{runc:{path:'runc'},runsc:{path:'/usr/local/bin/runsc',runtimeArgs:[]},kata:{runtimeType:'/opt/kata/bin/containerd-shim-kata-v2'}},...patch};
+  return {OSType:'linux',Architecture:'aarch64',CgroupVersion:'2',MemoryLimit:true,PidsLimit:true,CpuCfsQuota:true,SecurityOptions:['name=seccomp,profile=builtin'],Runtimes:{runc:{path:'runc'},runsc:{path:'/usr/local/bin/runsc',runtimeArgs:[]},kata:{}},...patch};
 }
 
 test('G01/G02/G04: a registered runtime selects only a supported native Linux platform', () => {
@@ -21,6 +21,7 @@ test('G01/G02/G04: a registered runtime selects only a supported native Linux pl
     assert.throws(()=>enforceHost(info,runtime),/runtime-unavailable/);
   }
   assert.throws(()=>enforceHost(host(),'untrusted-runtime'));
+  for(const runtime of ['runc','runsc']) assert.throws(()=>enforceHost(host({Runtimes:{[runtime]:{}}}),runtime),/runtime-unavailable/);
   assert.deepEqual(daemonIsolation(host()),{rootless:false,userns:false});
   assert.deepEqual(daemonIsolation(host({SecurityOptions:['name=seccomp,profile=builtin','name=rootless','name=userns']})),{rootless:true,userns:true});
 });

@@ -25,12 +25,13 @@ The server stores only its hash.
 
 ## Runtime identity
 
-The trusted host selects `runc` or `runsc` before approval.
+The trusted host selects `runc`, `runsc`, or `kata` before approval.
 The Docker host supplies the native Linux ARM64 or AMD64 platform.
 Policy, approval, and evidence bind the platform and registered runtime configuration.
 The server verifies the actual container runtime.
 If the selected runtime is unavailable or changes, reject execution without another runtime.
 For `runsc`, distinguish virtual guest probes from host-enforced controls.
+For `kata`, the guest PID limit is not applied, and execution requires host KVM evidence.
 Keep the resource limits and all required isolation checks.
 
 ## Fixed limits
