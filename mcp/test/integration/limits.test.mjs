@@ -1,16 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepared, save, pause, waitUntil } from '../helpers.mjs';
+import { prepared, save, pause, waitUntil, testRuntime } from '../helpers.mjs';
 import { approval, connectClient, ready, access } from '../mcp-client.mjs';
 import { DockerBackend } from '../../dist/docker.js';
 import { Controller } from '../../dist/controller.js';
 import { BUDGET } from '../../dist/policy.js';
 
+// A Kata guest boots and reports its exit a few seconds later than a container.
+const vm=testRuntime==='kata';
 const dead=pid=>{try{process.kill(pid,0);return false;}catch(error){return error.code==='ESRCH';}};
 
 test('A8/A9: expiry denies new execution but permits evidence, cancellation and disposal', async () => {
   const {dir,config}=await prepared('expiry');
-  const expires=Date.now()+3500;
+  const expires=Date.now()+(vm?9000:3500);
   const grant=approval(dir,'authorization','expiry',new Date(expires).toISOString());
   const {client,call}=await connectClient(dir),backend=new DockerBackend(config,dir);
   try {
@@ -36,7 +38,7 @@ test('A9: the independent guest deadline stops after SIGKILL without a live cont
     credentials=access(await connection.call('create',grant));await ready(connection.call,credentials);
     const started=await backend.inspect(credentials.experimentId);save('independent-before',started);
     const pid=connection.transport.pid;process.kill(pid,'SIGKILL');await waitUntil(()=>dead(pid));await connection.client.close();
-    const until=Date.parse(started.State.StartedAt)+BUDGET.lifetimeSeconds*1000+1000;
+    const until=Date.parse(started.State.StartedAt)+BUDGET.lifetimeSeconds*1000+(vm?6000:1000);
     await pause(Math.max(0,until-Date.now()));
     const actual=await backend.inspect(credentials.experimentId);save('independent-after',actual);
     assert.equal(actual.State.Running,false);
