@@ -45,7 +45,7 @@ docker pull node@sha256:9bef0ef1e268f60627da9ba7d7605e8831d5b56ad07487d24d1aa386
 Linux capability를 모두 제거하고 `no-new-privileges`를 적용합니다.
 CPU 1개, 메모리 128 MiB, 프로세스 64개, 임시 파일시스템 16 MiB로 제한합니다.
 컨테이너 내부 테스트 명령에 30초 제한을 적용하며, 종료 후 컨테이너를 제거합니다.
-검증한 Docker 런타임은 gVisor가 아니라 `runc`입니다.
+검증한 Docker 런타임은 `runc`입니다.
 
 예상 결과는 테스트 22개 통과, 실패·취소·건너뛰기 0개입니다.
 종료 코드가 0이 아니면 검증 실패로 처리합니다.
