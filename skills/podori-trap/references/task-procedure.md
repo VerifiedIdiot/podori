@@ -28,6 +28,19 @@ For review-only or design-only tasks, assess these steps without implementation 
 | Synthetic pages or mazes | `maze-and-fidelity.md` |
 | Persistent integration | `../templates/project-trap-rules.md` |
 
+## Unpredictable Shape
+
+This package is public. A trap that copies it is recognizable.
+
+Do not reuse names, paths, fields, response bodies, status sequences, or file layouts from the examples, documents, or tests of this package.
+Derive each of them from the naming, formats, and structure of the target project.
+Do not derive them from a word, a phrase, a date, or a fixed list.
+Create secret-like values only with the OS-backed random API in [decoys](seed-and-decoys.md).
+Do not use trap-related words such as decoy, trap, honey, canary, or fake in anything a requester or a repository reader can see near a decoy.
+Match the headers, error format, and timing class of the project's normal responses.
+Select the number, kind, and placement of traps for each project. Do not apply the same set to every project.
+Check that requester-visible trap output contains no identifier from this package.
+
 ## Code Organization
 
 Keep trap routes, decoys, events, policies, configuration, and tests together in dedicated trap modules.
