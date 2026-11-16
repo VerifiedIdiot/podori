@@ -194,6 +194,7 @@ Disable and shutdown remove timers and trap state.
 ## Scope and evidence
 
 This is a single-process teaching demo, not a production security boundary.
+The paths and names in this example are public. Do not reuse them in a real project.
 It has no authentication other than one synthetic Bearer key, and no persistent storage, replica coordination, or real application integration.
 Restart discards all proofs and events.
 The normal endpoint shares server and operating-system resources with the trap.
