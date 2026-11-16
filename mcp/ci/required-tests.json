@@ -203,6 +203,46 @@
     {
       "file": "test/runtime-probe.test.mjs",
       "name": "G06: kata requires bound KVM evidence and guest controls without the guest PID limit"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P01: a project run uses only the approved command, image and read-only mount, then removes the container"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P02: changed container controls stop a project run before start"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P03: a tampered container is never started and is removed"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P04: project approvals are single-use, token-bound, expiring, and separate from fixture approvals"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P05: a project run stops on timeout or cancellation and allows one run at a time"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P06: the project directory, command and budget stay inside fixed bounds"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P07: a restart marks interrupted runs unverified and removes leftover project containers"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P08: stored output stays bounded across the run limit and control bytes cannot crash the server"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P09: a container that never started is not reported as a passed run"
+    },
+    {
+      "file": "test/project.test.mjs",
+      "name": "P12: a socket inside the project directory stops the run before start"
     }
   ],
   "integration": [
@@ -293,6 +333,14 @@
     {
       "file": "test/integration/timeout.test.mjs",
       "name": "A9: the deadline removes the actual container and rejects late HTTP completion"
+    },
+    {
+      "file": "test/integration/project.test.mjs",
+      "name": "P10: a real project command runs non-root over a read-only mount without network and is removed"
+    },
+    {
+      "file": "test/integration/project.test.mjs",
+      "name": "P11: a real project command that exceeds its time limit is killed and removed"
     }
   ]
 }

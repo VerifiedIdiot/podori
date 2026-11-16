@@ -10,11 +10,13 @@ import { configuration } from './runtime-helpers.mjs';
 
 const initialize = { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'podori-raw-input-regression', version: '1.0.0' } };
 const access = { experimentId: '54d55c68-751a-4c17-831c-15b3632b899b', accessToken: '1'.repeat(64) };
+const project = { projectId: '54d55c68-751a-4c17-831c-15b3632b899b', accessToken: '1'.repeat(64) };
 const create = { approvalId: '54d55c68-751a-4c17-831c-15b3632b899b', claimToken: '1'.repeat(64) };
 const inputs = {
   sandbox_environment: {}, sandbox_create: create, sandbox_status: access,
   sandbox_run: { ...access, scenario: 'authorization' }, sandbox_evidence: access,
   sandbox_reset: access, sandbox_cancel: access, sandbox_dispose: access,
+  sandbox_project_create: create, sandbox_project_run: project, sandbox_project_status: project, sandbox_project_cancel: project,
 };
 
 async function rawServer(t, configured = false) {
@@ -38,7 +40,7 @@ async function rawServer(t, configured = false) {
   writeFileSync(join(bin, 'docker'), `#!${process.execPath}\nimport {appendFileSync} from 'node:fs';\nimport {join} from 'node:path';\nconst args=process.argv.slice(2);\nappendFileSync(join(process.env.HOME,'docker-calls.jsonl'),JSON.stringify(args)+'\\n');\nif(args[0]!=='--host'||args[2]!=='container'||args[3]!=='ls')process.exitCode=91;\n`, { mode: 0o700 });
   // Observe entry to real controller actions without replacing their behavior.
   const observer = join(root, 'observe.mjs');
-  writeFileSync(observer, `import {appendFileSync} from 'node:fs';\nimport {Controller} from ${JSON.stringify(pathToFileURL(resolve('dist/controller.js')).href)};\nfor(const name of ['environment','create','status','run','evidence','reset','cancel','dispose']) {\n const original=Controller.prototype[name];\n Controller.prototype[name]=function(...args){appendFileSync(${JSON.stringify(actionFile)},JSON.stringify({name})+'\\n',{mode:0o600});return Reflect.apply(original,this,args);};\n}\n`, { mode: 0o600 });
+  writeFileSync(observer, `import {appendFileSync} from 'node:fs';\nimport {Controller} from ${JSON.stringify(pathToFileURL(resolve('dist/controller.js')).href)};\nfor(const name of ['environment','create','status','run','evidence','reset','cancel','dispose']) {\n const original=Controller.prototype[name];\n Controller.prototype[name]=function(...args){appendFileSync(${JSON.stringify(actionFile)},JSON.stringify({name})+'\\n',{mode:0o600});return Reflect.apply(original,this,args);};\n}\nimport {ProjectRunner} from ${JSON.stringify(pathToFileURL(resolve('dist/project.js')).href)};\nfor(const name of ['create','run','status','cancel']) {\n const original=ProjectRunner.prototype[name];\n ProjectRunner.prototype[name]=function(...args){appendFileSync(${JSON.stringify(actionFile)},JSON.stringify({name:'project-'+name})+'\\n',{mode:0o600});return Reflect.apply(original,this,args);};\n}\n`, { mode: 0o600 });
   const child = spawn(process.execPath, ['--import', observer, 'dist/server.js', ...(configured ? [state] : [])], {
     env: { PATH: bin, HOME: home, TMPDIR: root, NO_COLOR: '1' }, stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -70,7 +72,7 @@ async function rawServer(t, configured = false) {
       if (configured) {
         assert.equal(existsSync(join(state, 'server.lock')), false, 'Controller lock must be released');
         assert.equal(existsSync(join(state, 'server.guard')), false);
-        assert.equal(readdirSync(state).some(name => /^(experiment-|grant-|pending-)/.test(name)), false, 'Invalid/unauthorized calls must not create state');
+        assert.equal(readdirSync(state).some(name => /^(experiment-|grant-|pending-|project-)/.test(name)), false, 'Invalid/unauthorized calls must not create state');
       }
     } finally {
       clearTimeout(timer); lines.close();

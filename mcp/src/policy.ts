@@ -66,3 +66,29 @@ export function authorize(input: unknown, config: Configuration, token: string):
   if (!matchesToken(token, grant.claimHash)) throw new Error('access-denied');
   return grant;
 }
+
+// Project runs: an operator-approved command over a read-only mount of one project directory.
+export const PROJECT = Object.freeze({ runs: 20, sessions: 20, tailBytes: 8192, outputBytes: 67108864, argv: 32, entries: 1000000 });
+export const ProjectBudget = z.strictObject({
+  // Two decimals keep --cpus and the inspected NanoCpus equal.
+  cpu: z.number().min(0.1).max(4).refine(x => Math.abs(x*100-Math.round(x*100)) < 1e-9), memory: z.number().int().min(67108864).max(4294967296),
+  pids: z.number().int().min(16).max(1024), tmpfs: z.number().int().min(4194304).max(1073741824),
+  runSeconds: z.number().int().min(1).max(1800),
+});
+export type ProjectLimits = z.infer<typeof ProjectBudget>;
+// The path enters one --mount argument, so it cannot contain a comma, quote, backslash, or control character.
+export const ProjectDir = z.string().min(2).max(512).regex(/^\/[^,"\\\x00-\x1f\x7f]+$/)
+  .refine(x => !x.endsWith('/') && x.split('/').slice(1).every(part => part !== '' && part !== '.' && part !== '..'));
+export const ProjectApproval = z.strictObject({
+  version: z.literal(2), ...ExecutionIdentity,
+  id: Id, reportId: Reference, itemId: Reference, target: z.literal('project'),
+  projectDir: ProjectDir, imageId: ImageId, argv: z.array(z.string().min(1).max(512)).min(1).max(PROJECT.argv),
+  budget: ProjectBudget, expiresAt: z.iso.datetime(), claimHash: Hash,
+});
+export type ProjectGrant = z.infer<typeof ProjectApproval>;
+export const ProjectAccess = z.strictObject({ projectId: Id, accessToken: Token });
+export function projectScopeValid(grant: ProjectGrant, config: Configuration): void {
+  ProjectApproval.parse(grant);
+  if (grant.runtime !== config.runtime || grant.runtimeConfigHash !== config.runtimeConfigHash || grant.platform !== config.platform) throw new Error('scope-mismatch');
+  if (Date.parse(grant.expiresAt) <= Date.now()) throw new Error('approval-expired');
+}
