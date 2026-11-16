@@ -4,7 +4,7 @@
 
 **App-specific traps and isolated security tests, with your usual AI agent.**
 
-[한국어 안내](README.md) | English · `1.2.0`
+[한국어 안내](README.md) | English · `1.3.0`
 
 podori gives your usual AI coding agent skills for security reviews, repairs, and tests. It also guides app-specific trap implementation and runs test code in the isolation you pick: a container, gVisor, or Kata.
 
@@ -47,7 +47,7 @@ Pick where the test code runs to match your host. Each row down the table expose
 
 All three runtimes apply the same controls: no network, a non-root user, and a read-only filesystem. Each run checks the isolation state in the actual container. **This adds a protection layer for the host OS that runs the test code.**
 
-The optional local MCP isolates the bundled sample app and compares behavior before and after fixes. The default is `runc`. Select `runsc` or `kata` during preparation.
+The optional local MCP mounts your project directory read-only and runs an approved test command in isolation. It can also compare behavior before and after fixes with the bundled sample app. The default is `runc`. Select `runsc` or `kata` during preparation.
 
 Trap implementation and general security reviews do not require MCP. For isolated execution, follow the [sandbox guide](mcp/README.en.md).
 
@@ -61,7 +61,7 @@ The standalone demo implements event records and used local Docker with `runc` f
 
 ## Start in your project
 
-From release tag `v1.2.0`, copy the **complete skill folder** into your agent's skill directory. To start with traps, install `skills/podori-trap/`. Then invoke the skill in the target project.
+From release tag `v1.3.0`, copy the **complete skill folder** into your agent's skill directory. To start with traps, install `skills/podori-trap/`. Then invoke the skill in the target project.
 
 ```text
 /podori-trap
@@ -78,7 +78,7 @@ Each skill works independently. Choose only the task that you need.
 | Task | Skill to install |
 |---|---|
 | App-specific traps and responses | [podori-trap](skills/podori-trap/SKILL.md) |
-| Sample app tests in a container, gVisor, or Kata sandbox | [podori-sandbox](skills/podori-sandbox/SKILL.md) |
+| Your app's test command in a container, gVisor, or Kata sandbox | [podori-sandbox](skills/podori-sandbox/SKILL.md) |
 | Security reviews, repairs, and tests | [podori](skills/podori/SKILL.md) |
 | Package and container image provenance and risks | [podori-doubt](skills/podori-doubt/SKILL.md) |
 | eGovFrame security criteria | [podori-egov](skills/podori-egov/README.en.md) |

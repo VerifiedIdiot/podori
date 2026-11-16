@@ -2,16 +2,21 @@
 
 [한국어 안내](README.md) | English
 
-This optional local stdio package accompanies `1.2.0`. The four existing skills work without this package.
+This optional local stdio package accompanies `1.3.0`. The four existing skills work without this package.
 
 ## Supported scope
 
-The package runs only the bundled `synthetic-http-v1` app. One container runs the vulnerable and fixed variants on separate loopback ports. A fixed driver sends actual HTTP requests inside the same container.
+The package has two targets.
+
+- **Project run**: Mount an operator-approved project directory read-only and run one approved command in one approved image. The run returns an exit code and output. See [Project runs](#project-runs).
+- **Bundled sample app**: Compare behavior before and after a fix with the `synthetic-http-v1` app.
+
+For the sample app, one container runs the vulnerable and fixed variants on separate loopback ports. A fixed driver sends actual HTTP requests inside the same container.
 
 - `authorization`: Compare synthetic account alice's own-document access with access to bob's document. The fixed variant rejects cross-account requests with 403.
 - `input-validation`: Compare the valid quantity 2 with the invalid quantity -1. The fixed variant rejects -1 with 400 and preserves the valid quantity.
 
-Inputs cannot specify arbitrary repositories, images, paths, code, shells, or external targets. Production data, real credentials, attack chains, code-execution vulnerability demonstrations, destructive tests, and resource-exhaustion tests are outside the supported scope. This implementation does not guarantee isolation of malicious code or protection against container escapes.
+MCP inputs cannot specify repositories, images, paths, commands, or external targets. The directory, image, and command of a project run exist only in the operator approval. Production data, real credentials, attack chains, code-execution vulnerability demonstrations, destructive tests, and resource-exhaustion tests are outside the supported scope. This implementation does not guarantee isolation of malicious code or protection against container escapes.
 
 ## Prerequisites
 
@@ -129,6 +134,44 @@ For an input-validation item, specify `input-validation`. Output contains only t
 
 Without a state argument, the server only reports whether the environment lacks configuration. STDOUT carries only MCP messages. The package exposes no HTTP MCP listener or public port.
 
+## Project runs
+
+Run the tests or checks of your own app in the sandbox. The operator fixes the directory, image, command, limits, and expiry in an approval. The agent can only request execution with that approval.
+
+```sh
+EXPIRY="$(node -p 'new Date(Date.now() + 3600000).toISOString()')"
+node dist/host.js approve-project "$STATE" report-1 tests-1 /absolute/path/my-app node:24 "$EXPIRY" \
+  --memory-mib=1024 --cpus=2 --timeout=600 -- /bin/sh -c 'npm test'
+```
+
+- The directory must be an absolute real directory. The command rejects symbolic links, paths with a comma, quote, or backslash, and a path that contains the state directory.
+- The image must exist locally. The approval pins its image ID. Prepare the runtime and dependencies in the image or the project directory. The run has no network, so it cannot install them.
+- The command follows `--`. No shell interprets it. Use `/bin/sh -c '…'` for shell syntax.
+- Defaults are 1024 MiB memory, 2 CPUs, a 600-second deadline, 256 PIDs, and a 256 MiB `/tmp`. Maximums are 4096 MiB, 4 CPUs, 1800 seconds, 1024 PIDs, and 1024 MiB.
+
+Each run creates a new container and removes it after the command ends.
+
+- Cleanup runs before a run, after a run, and at server start and stop. It removes the project containers of this state directory with their anonymous volumes and confirms that none remain.
+- A run state becomes final only after confirmed cleanup. Without that confirmation, the run keeps the `cleanup-not-confirmed` error, and the next run starts only after cleanup succeeds.
+- The server does not delete images or the approval and run records in the state directory. The content of `/tmp` disappears with the container.
+- An image that declares `VOLUME` is rejected. The image `HEALTHCHECK` is disabled.
+- The directory is checked at approval and immediately before start. A directory with a socket, FIFO, or device file is rejected. So is a directory that contains the state directory or the Docker socket.
+
+- The container uses network none, non-root 1000:1000, cap-drop ALL, no-new-privileges, and a read-only root filesystem.
+- The approved project directory is the only host mount. It is read-only at `/work`. `/tmp` is the only writable path. The working directory is `/work` and `HOME` is `/tmp`.
+- Before start, the server compares the created container with the approval. On a difference, it removes the container without a start.
+- One approval permits 20 runs. After a code change inside the directory, run again without a new approval. One run is active at a time.
+- The record keeps the total byte count, the SHA-256, and the last 8 KiB of output. A run stops if its output exceeds 64 MiB.
+
+Project runs differ from sample app runs.
+
+- The server does not run the in-guest probe or check host cgroups or the KVM process. It verifies the runtime that Docker inspect reports.
+- No independent guest deadline exists. If the controller stops during a run, the next start removes the container.
+- Files in the project directory are visible to the command, including secret files such as `.env`. The command cannot send them to a network, but its output returns to the client.
+- A command that writes into the project directory fails. This includes caches, coverage, and build output. Direct that output to `/tmp`.
+- The command cannot read files that UID 1000 cannot read.
+- Exit code 0 means that the approved command passed. It is not a verdict that the app is safe.
+
 ## 1.x compatibility contract
 
 The 1.x contract covers documented tool names, input schemas, access-token requirements, and evidence verdict meanings. The trusted operator issues approvals outside MCP. Security corrections can reject inputs that violate the documented contract.
@@ -149,6 +192,15 @@ Read `../skills/podori-sandbox/references/tool-contract.md` for the complete inp
 | 6 | `sandbox_reset` | Restore actual app data and verify the HTTP response |
 | 7 | `sandbox_cancel` | Stop only the requested experiment |
 | 8 | `sandbox_dispose` | Remove the owned resources and preserve evidence |
+
+Project runs use these tools.
+
+| Order | Tool | Action |
+|---|---|---|
+| 1 | `sandbox_project_create` | Consume a project approval with `approvalId` and `claimToken`, and return its content |
+| 2 | `sandbox_project_run` | Start the approved command with `projectId` and `accessToken` |
+| 3 | `sandbox_project_status` | Read run state, exit code, output hash, and the output tail |
+| 4 | `sandbox_project_cancel` | Stop the active run and remove its container |
 
 Creation returns the experiment token only once. Subsequent access requires both the ID and token. The server stores only the token hash. Do not copy tokens into logs, public reports, or other agents.
 

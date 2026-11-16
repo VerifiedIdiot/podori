@@ -1,9 +1,9 @@
 ---
 name: podori-sandbox
-description: Use for bounded synthetic HTTP verification in an isolated sandbox. Compare authorization and input-validation fixes in the bundled fixture with host-issued approval.
+description: Use for execution in an isolated sandbox. Run a host-approved command over a read-only mount of the project, or compare authorization and input-validation fixes in the bundled fixture.
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
   author: VerifiedIdiot
   platforms: "linux, macos"
 compatibility: Execution requires a separately prepared local stdio MCP server and approved images. The Docker host must provide Linux ARM64 or AMD64 with runc, runsc, or kata. runsc and kata require a native Linux host, and kata requires KVM. The trusted host operator must issue approval before execution. Prepare all runtime dependencies before the task.
@@ -18,9 +18,17 @@ This skill does not invoke them.
 
 ## Scope
 
-Test only the bundled `synthetic-http-v1` fixture.
-Use only `authorization` and `input-validation` scenarios.
-Do not run repositories, supplied images, commands, scripts, or external targets.
+Use one of two targets. Each needs its own host-issued approval.
+
+| Target | Runs |
+|---|---|
+| `project` | One approved command in one approved image, over a read-only mount of one approved project directory |
+| `synthetic-http-v1` | The bundled fixture with the `authorization` and `input-validation` scenarios |
+
+For a project run, the approval fixes the directory, image, command, limits, and expiry.
+Do not ask the server for another directory, image, or command. Request a new approval instead.
+A project run reports an exit code and bounded output. It does not issue a security verdict.
+Do not run any other repository, image, command, script, or external target.
 Do not test code execution, attack chains, destruction, or resource exhaustion.
 Do not use production data, host mounts, management sockets, or real credentials in a guest.
 Do not change policy or providers to evade a refusal.

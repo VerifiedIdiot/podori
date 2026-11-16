@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import { lstatSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { BUDGET, BASE_IMAGE, Config, Id, Runtime, objectHash, type Configuration, type NativePlatform, type RuntimeName, type ScenarioId } from './policy.js';
+import { BUDGET, BASE_IMAGE, PROJECT, Config, Id, Runtime, objectHash, type Configuration, type NativePlatform, type RuntimeName, type ScenarioId } from './policy.js';
 import { Store } from './store.js';
 import { collectHostControls, collectVm, enforceHostControls, enforceVm, type HostControlEvidence, type VmEvidence } from './host-evidence.js';
 
@@ -68,6 +68,17 @@ export function enforceProbe(input:unknown, config?:Configuration, hostControls?
     if(p.noNewPrivs!==1 || p.seccomp!==2 || p.memoryMax!==String(BUDGET.memory) || (!vm && p.pidsMax!==String(BUDGET.pids)) || p.cpuMax!=='50000 100000' || !p.tmpMount.includes('size=4096k'))throw new Error('isolation-probe-failed');
   }
 }
+export type StreamResult={bytes:number;hash:string;tail:string;truncated:boolean;timedOut:boolean;exitCode:number|null};
+export function outputDigest():{update:(chunk:Buffer)=>void;result:(timedOut:boolean,exitCode:number|null)=>StreamResult;full:()=>boolean} {
+  const hash=createHash('sha256');
+  let bytes=0, tail=Buffer.alloc(0);
+  return {
+    update(chunk) {bytes+=chunk.length;hash.update(chunk);tail=Buffer.concat([tail,chunk]);if(tail.length>PROJECT.tailBytes)tail=tail.subarray(tail.length-PROJECT.tailBytes);},
+    full:()=>bytes>PROJECT.outputBytes,
+    // Control characters expand sixfold in JSON. Replace them so the stored tail stays bounded.
+    result:(timedOut,exitCode)=>({bytes,hash:hash.digest('hex'),tail:tail.toString('utf8').replace(/[\x00-\x08\x0b-\x1f\x7f]/g,'?'),truncated:bytes>PROJECT.outputBytes,timedOut,exitCode}),
+  };
+}
 export class CommandFailure extends Error {
   constructor(readonly reason:string, readonly exitCode:number|null, readonly diagnostic = '') { super(reason); }
 }
@@ -86,6 +97,22 @@ export class DockerBackend {
       child.stderr.on('data',(chunk:Buffer)=>{bytes+=chunk.length; if(bytes>BUDGET.outputBytes){failure='output-truncated';child.kill('SIGKILL');} else diagnostic+=chunk.toString('utf8');});
       child.once('error',()=>{clearTimeout(timer);reject(new CommandFailure('docker-unavailable',null));});
       child.once('close',code=>{clearTimeout(timer); if(failure || code!==0)reject(new CommandFailure(failure ?? 'docker-command-failed',code,diagnostic)); else resolve(out.trim());});
+    });
+  }
+  // Stream a long command. Keep only a digest, a byte count, and the tail of its output.
+  async stream(args:string[], limit:number, signal:AbortSignal):Promise<StreamResult> {
+    if(signal.aborted)throw new Error('operation-cancelled');
+    return await new Promise((resolve,reject)=>{
+      const child=spawn('docker',['--host',this.config.endpoint,...args],{shell:false,env:{PATH:process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin',HOME:this.stateDir,DOCKER_CONFIG:this.stateDir,TMPDIR:process.env.TMPDIR ?? this.stateDir,DOCKER_CLI_HINTS:'false'},stdio:['ignore','pipe','pipe']});
+      const output=outputDigest();
+      let timedOut=false;
+      const stop=():void=>{child.kill('SIGKILL');};
+      const timer=setTimeout(()=>{timedOut=true;stop();},limit);
+      signal.addEventListener('abort',stop,{once:true});
+      const collect=(chunk:Buffer):void=>{output.update(chunk);if(output.full())stop();};
+      child.stdout.on('data',collect);child.stderr.on('data',collect);
+      child.once('error',()=>{clearTimeout(timer);signal.removeEventListener('abort',stop);reject(new CommandFailure('docker-unavailable',null));});
+      child.once('close',code=>{clearTimeout(timer);signal.removeEventListener('abort',stop);resolve(output.result(timedOut,code));});
     });
   }
   name(id:string):string { return `podori-${this.config.owner}-${Id.parse(id)}`; }

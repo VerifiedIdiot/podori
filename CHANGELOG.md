@@ -1,12 +1,25 @@
 # 변경 이력
 
+## 1.3.0
+
+- `podori-sandbox`에 프로젝트 실행 추가: 운영자가 승인한 프로젝트 폴더를 읽기 전용으로 마운트하고, 승인한 이미지에서 승인한 명령을 실행
+- 운영자 명령 `approve-project`와 MCP 도구 `sandbox_project_create`·`sandbox_project_run`·`sandbox_project_status`·`sandbox_project_cancel` 추가
+- 프로젝트 실행의 한도는 승인 때 지정(메모리 4 GiB, CPU 4, 1800초 이내). 기존 샘플 앱 실행과 도구는 그대로 유지
+- README의 미끼 키·키 금고 표기를 허니토큰·시크릿 저장소로 통일
+
+### English
+
+- `podori-sandbox` adds project runs: mount an operator-approved project directory read-only and run an approved command in an approved image.
+- The operator command `approve-project` and the MCP tools `sandbox_project_create`, `sandbox_project_run`, `sandbox_project_status`, and `sandbox_project_cancel` are new.
+- The operator sets project run limits in the approval, within 4 GiB memory, 4 CPUs, and 1800 seconds. The sample app runs and their tools do not change.
+
 ## 1.2.0
 
-- `podori-trap`에 저장소·설정 파일·키 금고의 미끼 키 규칙 추가: 배치마다 다른 값, 지문만 등록, 잘못된 키와 같은 응답, secret scanner 유지
+- `podori-trap`에 저장소·설정 파일·시크릿 저장소의 허니토큰 규칙 추가: 배치마다 다른 값, 지문만 등록, 잘못된 키와 같은 응답, secret scanner 유지
 - `podori-trap`에 AI 에이전트 범위 미끼 규칙 추가: 허가 범위 밖 배치, 운영자 알림, 미끼 안 에이전트 지시문 금지
 - 기존 보안 제품에 꺼져 있는 미끼 기능을 보고
 - 함정의 이름·경로·응답 모양을 이 패키지의 예제가 아닌 대상 프로젝트에서 도출
-- 함정 예제에 미끼 키 등록부와 HTTP 테스트 6개 추가(전체 28개)
+- 함정 예제에 허니토큰 등록부와 HTTP 테스트 6개 추가(전체 28개)
 
 ### English
 
