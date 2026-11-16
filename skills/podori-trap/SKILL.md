@@ -3,7 +3,7 @@ name: podori-trap
 description: Use when the user explicitly requests web app traps. Create isolated decoys with server-verified detection. Require separate production approval.
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   author: VerifiedIdiot
   platforms: "linux, macos, windows"
 ---
@@ -89,6 +89,7 @@ Do not require subagents or another provider.
 | Event attribution | [Detection](references/detection-and-response.md) |
 | Resource and expiry limits | [Costs](references/operating-costs.md) |
 | Routes, credentials, or seeds | [Decoys](references/seed-and-decoys.md) |
+| Decoys in repositories, configuration, or secret stores, and AI agent scope | [Stored decoys](references/placed-decoys.md) |
 | Synthetic pages or mazes | [Maze rules](references/maze-and-fidelity.md) |
 | Required current advisory evidence | [Advisory preflight](references/advisory-preflight.md), before the evidence freeze |
 

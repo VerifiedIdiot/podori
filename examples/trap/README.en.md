@@ -16,7 +16,9 @@ The trap defaults to off.
 |---|---|
 | `server.mjs` | HTTP server and synthetic normal endpoint |
 | `trap.mjs` | Isolated decoy, registry, budgets, and events |
+| `stored-decoy.mjs` | Registry and events for decoy keys stored in repositories, configuration files, and secret stores |
 | `test/http.test.mjs` | Real HTTP tests over internal loopback |
+| `test/stored-decoy.test.mjs` | Real HTTP tests for submitted decoy keys |
 | `test-sandbox.sh` | Bounded Docker test command |
 | `package.json` | Local test and start commands |
 
@@ -49,7 +51,7 @@ The in-container test command has a 30-second deadline.
 Docker removes the container after exit.
 The verified Docker runtime was `runc`.
 
-Expected result: 22 tests pass, with zero failures, cancellations, or skipped tests.
+Expected result: 28 tests pass, with zero failures, cancellations, or skipped tests.
 A nonzero exit code means that the check failed.
 
 ### Direct execution
@@ -146,6 +148,18 @@ The `storeEvent` option is a synchronous test fault hook, not an external persis
 Do not connect asynchronous storage or external services to that hook.
 The tests inject a storage exception and check the failure response.
 
+## Stored decoy keys
+
+`stored-decoy.mjs` detects the submission of decoy keys stored in repositories, configuration files, and secret stores.
+The synthetic endpoint `GET /api/reports` is the verifier for Bearer keys.
+The operator creates a different value for each placement and registers its HMAC fingerprint, placement name, and expiry, not the value.
+A registered decoy key grants no access and receives the same HTTP 401 response as any invalid key.
+Each placement has one event. Repeated submissions increase only its use count.
+An event shows only that the value at that placement was read and used.
+While traps are disabled, the server does not match decoy keys or record state.
+This example commits no credential-like value. The tests generate values at run time.
+Secret-store access audit logs and AI agent scope decoys are outside this example.
+
 ## Default budgets
 
 All budgets apply to one process.
@@ -161,6 +175,7 @@ HTTP input cannot change them.
 | Outstanding artifacts | 16 |
 | Challenge lifetime | 10 seconds |
 | Events | 32 |
+| Registered decoy keys | 16 |
 | Event retention | 60 seconds |
 | Expiry sweep | Every second |
 | HTTP header size | 4096 bytes |
@@ -179,7 +194,7 @@ Disable and shutdown remove timers and trap state.
 ## Scope and evidence
 
 This is a single-process teaching demo, not a production security boundary.
-It has no authentication, persistent storage, replica coordination, or real application integration.
+It has no authentication other than one synthetic Bearer key, and no persistent storage, replica coordination, or real application integration.
 Restart discards all proofs and events.
 The normal endpoint shares server and operating-system resources with the trap.
 The tests do not establish resistance to general denial-of-service attacks.

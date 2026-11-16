@@ -3,7 +3,7 @@ name: podori-sandbox
 description: Use for bounded synthetic HTTP verification in an isolated sandbox. Compare authorization and input-validation fixes in the bundled fixture with host-issued approval.
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   author: VerifiedIdiot
   platforms: "linux, macos"
 compatibility: Execution requires a separately prepared local stdio MCP server and approved images. The Docker host must provide Linux ARM64 or AMD64 with runc, runsc, or kata. runsc and kata require a native Linux host, and kata requires KVM. The trusted host operator must issue approval before execution. Prepare all runtime dependencies before the task.

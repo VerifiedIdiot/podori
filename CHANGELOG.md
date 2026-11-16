@@ -1,5 +1,19 @@
 # 변경 이력
 
+## 1.2.0
+
+- `podori-trap`에 저장소·설정 파일·키 금고의 미끼 키 규칙 추가: 배치마다 다른 값, 지문만 등록, 잘못된 키와 같은 응답, secret scanner 유지
+- `podori-trap`에 AI 에이전트 범위 미끼 규칙 추가: 허가 범위 밖 배치, 운영자 알림, 미끼 안 에이전트 지시문 금지
+- 기존 보안 제품에 꺼져 있는 미끼 기능을 보고
+- 함정 예제에 미끼 키 등록부와 HTTP 테스트 6개 추가(전체 28개)
+
+### English
+
+- `podori-trap` adds rules for decoy keys in repositories, configuration files, and secret stores: one value per placement, fingerprint-only registration, the invalid-key response, and enabled secret scanners.
+- `podori-trap` adds rules for AI agent scope decoys: placement outside the approved scope, operator alerts, and no agent instructions in decoys.
+- The procedure reports disabled deception features of existing security products.
+- The trap example adds a decoy key registry and six HTTP tests (28 in total).
+
 ## 1.1.0
 
 - `podori-wreck`을 `podori-sandbox`로 이름 변경. 기존 설치는 새 폴더로 다시 복사하고 `/podori-sandbox`로 호출
