@@ -11,6 +11,7 @@ Tests do not authorize production activation or new infrastructure.
 For review-only or design-only tasks, assess these steps without implementation or execution.
 
 1. Identify the target, project instructions, existing controls, topology, and implementation owner.
+   Report deception features of existing security products that are present but disabled. Do not enable them without approval.
 2. Inspect affected authentication and authorization directly without a prerequisite audit.
 3. Read the applicable local references below.
 4. Define the event, attribution, budgets, expiry, and emergency disable.
@@ -23,6 +24,7 @@ For review-only or design-only tasks, assess these steps without implementation 
 |---|---|
 | Every trap | `detection-and-response.md`, `operating-costs.md` |
 | Routes, credentials, or seeds | `seed-and-decoys.md` |
+| Decoys in repositories, configuration, or secret stores, and AI agent scope | `placed-decoys.md` |
 | Synthetic pages or mazes | `maze-and-fidelity.md` |
 | Persistent integration | `../templates/project-trap-rules.md` |
 

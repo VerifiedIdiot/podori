@@ -4,7 +4,7 @@
 
 **App-specific traps and isolated security tests, with your usual AI agent.**
 
-[한국어 안내](README.md) | English · `1.1.0`
+[한국어 안내](README.md) | English · `1.2.0`
 
 podori gives your usual AI coding agent skills for security reviews, repairs, and tests. It also guides app-specific trap implementation and runs test code in the isolation you pick: a container, gVisor, or Kata.
 
@@ -30,6 +30,8 @@ You can also request responses that follow your app's operating policy.
 | Verified event notifications | Operator alerts |
 | Evidence-based access restrictions | Temporary restrictions |
 | Restriction reasons and durations | Blocklists, expiry, and manual release |
+| Use of decoy keys stored in repositories, configuration files, and secret stores | Per-placement decoy registration and detection records |
+| AI agents that leave their approved scope | Out-of-scope decoys and operator alerts |
 
 New traps start disabled, and you choose when to enable them. Restrictions apply when reliable attribution and an approved policy exist.
 
@@ -51,7 +53,7 @@ Trap implementation and general security reviews do not require MCP. For isolate
 
 ## Inspect the code and run the tests
 
-**The public trap example passed 22 HTTP tests.** Check event records, replay rejection, and normal application behavior yourself.
+**The public trap example passed 28 HTTP tests.** Check event records, replay rejection, and normal application behavior yourself.
 
 [Example code and commands](examples/trap/README.en.md) · [Sandbox CI](https://github.com/VerifiedIdiot/podori/actions/workflows/sandbox.yml)
 
@@ -59,7 +61,7 @@ The standalone demo implements event records and used local Docker with `runc` f
 
 ## Start in your project
 
-From release tag `v1.1.0`, copy the **complete skill folder** into your agent's skill directory. To start with traps, install `skills/podori-trap/`. Then invoke the skill in the target project.
+From release tag `v1.2.0`, copy the **complete skill folder** into your agent's skill directory. To start with traps, install `skills/podori-trap/`. Then invoke the skill in the target project.
 
 ```text
 /podori-trap

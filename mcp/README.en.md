@@ -2,7 +2,7 @@
 
 [한국어 안내](README.md) | English
 
-This optional local stdio package accompanies `1.1.0`. The four existing skills work without this package.
+This optional local stdio package accompanies `1.2.0`. The four existing skills work without this package.
 
 ## Supported scope
 
